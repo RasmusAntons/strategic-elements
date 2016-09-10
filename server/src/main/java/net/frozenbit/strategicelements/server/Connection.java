@@ -91,7 +91,6 @@ public class Connection implements Closeable {
 				}
 			}
 			close();
-			ServerState.getInstance().removeConnection(state.getName());
 		}
 
 		@Override
@@ -101,6 +100,8 @@ public class Connection implements Closeable {
 		}
 
 		void close() {
+			if (state.getName() != null)
+				ServerState.getInstance().removeConnection(state.getName());
 			try {
 				in.close();
 			} catch (IOException ignore) {

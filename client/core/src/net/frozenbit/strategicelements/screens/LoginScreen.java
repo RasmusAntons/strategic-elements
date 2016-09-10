@@ -7,9 +7,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.google.gson.JsonObject;
 import net.frozenbit.strategicelements.Connection;
+import net.frozenbit.strategicelements.NetworkListener;
 import net.frozenbit.strategicelements.StrategicElementsGame;
 
-public class LoginScreen extends ManageableScreen implements Input.TextInputListener {
+public class LoginScreen extends ManageableScreen implements Input.TextInputListener, NetworkListener {
 
 	private Connection connection;
 	private TextureRegion background;
@@ -18,6 +19,7 @@ public class LoginScreen extends ManageableScreen implements Input.TextInputList
 
 	public LoginScreen(StrategicElementsGame game) {
 		super(game);
+		game.getConnection().registerListener(this);
 		this.connection = game.getConnection();
 		background = game.getTextureAtlas().findRegion("main");
 		batch = new SpriteBatch();
@@ -49,6 +51,19 @@ public class LoginScreen extends ManageableScreen implements Input.TextInputList
 		if (!waiting) {
 			Gdx.input.getTextInput(this, "Enter your name", "", "Name");
 			waiting = true;
+		}
+	}
+
+	@Override
+	public void onDataReceived(JsonObject data) {
+		String type = data.get(Connection.JSON_ATTR_TYPE).getAsString();
+		if (!type.equals(Connection.JSON_TYPE_NAME))
+			return;
+		boolean success = data.get(Connection.JSON_ATTR_SUCCESS).getAsBoolean();
+		if (success) {
+			System.out.println("SUCCESS");
+		} else {
+			waiting = false;
 		}
 	}
 }

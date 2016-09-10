@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.net.SocketHints;
+import com.badlogic.gdx.utils.Json;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -18,6 +19,7 @@ public class Connection implements Closeable {
 	public static final String JSON_ATTR_TYPE = "type";
 	public static final String JSON_ATTR_NAME = "name";
 	public static final String JSON_ATTR_SUCCESS = "success";
+	public static final String JSON_TYPE_CLOSE = "close";
 
 	private Socket socket;
 	private Sender sender;
@@ -30,10 +32,12 @@ public class Connection implements Closeable {
 		SocketHints hints = new SocketHints();
 		this.socket = Gdx.net.newClientSocket(Net.Protocol.TCP, host, port, hints);
 		outQueue = new LinkedBlockingQueue<>();
-		networkListeners = new ArrayList<NetworkListener>();
+		networkListeners = new ArrayList<>();
+		parser = new JsonParser();
 		receiver = new Receiver(socket.getInputStream());
 		sender = new Sender(socket.getOutputStream());
-		parser = new JsonParser();
+		receiver.start();
+		sender.start();
 	}
 
 	public void send(JsonObject request) {
@@ -41,6 +45,18 @@ public class Connection implements Closeable {
 			outQueue.put(request.toString());
 		} catch(InterruptedException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void registerListener(NetworkListener listener) {
+		synchronized (networkListeners) {
+			networkListeners.add(listener);
+		}
+	}
+
+	public void removeListener(NetworkListener listener) {
+		synchronized (networkListeners) {
+			networkListeners.remove(listener);
 		}
 	}
 
@@ -69,10 +85,17 @@ public class Connection implements Closeable {
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				if (!isInterrupted())
+					e.printStackTrace();
 			} finally {
 				close();
 			}
+		}
+
+		@Override
+		public void interrupt() {
+			close();
+			super.interrupt();
 		}
 
 		void close() {
@@ -93,23 +116,35 @@ public class Connection implements Closeable {
 
 		@Override
 		public void run() {
+			//noinspection Duplicates
 			try {
 				//noinspection InfiniteLoopStatement
 				while (true) {
-					out.write(outQueue.take());
+					out.write(outQueue.take() + "\n");
 					out.flush();
 				}
 			} catch(InterruptedException ignore) {
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				if (!isInterrupted())
+					e.printStackTrace();
 			} finally {
 				close();
 			}
 		}
 
+		@Override
+		public void interrupt() {
+			close();
+			super.interrupt();
+		}
+
 		void close() {
 			try {
+				JsonObject close = new JsonObject();
+				close.addProperty(JSON_ATTR_TYPE, JSON_TYPE_CLOSE);
+				out.write(close.toString());
+				out.flush();
 				out.close();
 			} catch (IOException ignore) {
 

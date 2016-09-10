@@ -1,36 +1,67 @@
 package net.frozenbit.strategicelements.server;
 
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class Connection extends Thread {
-	private static final String JSON_ATTR_TYPE = "type";
-	private static final String JSON_TYPE_NAME = "name";
-	private static final String JSON_TYPE_CLOSE = "close";
+public class Connection implements Closeable {
+	public static final String JSON_TYPE_NAME = "name";
+	public static final String JSON_ATTR_TYPE = "type";
+	public static final String JSON_ATTR_NAME = "name";
+	public static final String JSON_ATTR_SUCCESS = "success";
+	public static final String JSON_TYPE_CLOSE = "close";
 
 	private Socket socket;
+	private Sender sender;
+	private Receiver receiver;
 	private JsonParser jsonParser;
 	private ConnectionState state;
+	private final BlockingQueue<String> outQueue;
 
-	public Connection(Socket socket) {
+	public Connection(Socket socket) throws IOException {
 		this.socket = socket;
 		state = new ConnectionState();
 		jsonParser = new JsonParser();
+		outQueue = new LinkedBlockingQueue<>();
+		receiver = new Receiver(socket.getInputStream());
+		sender = new Sender(socket.getOutputStream());
+		receiver.start();
+		sender.start();
 	}
 
-	public void run() {
-		boolean close = false;
-		JsonObject request, response;
-		try(
-			Socket socket = this.socket;
-			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))
-		) {
+	public void send(JsonObject response) {
+		try {
+			outQueue.put(response.toString());
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void close() {
+		sender.interrupt();
+		receiver.interrupt();
+		try {
+			socket.close();
+		} catch(IOException ignore) {
+
+		}
+	}
+
+	private class Receiver extends Thread {
+		private BufferedReader in;
+
+		Receiver(InputStream inStream) {
+			in = new BufferedReader(new InputStreamReader(inStream));
+		}
+
+		@Override
+		public void run() {
+			boolean close = false;
+			JsonObject request, response;
 			while (!close) {
 				try {
 					request = jsonParser.parse(in.readLine()).getAsJsonObject();
@@ -43,9 +74,9 @@ public class Connection extends Thread {
 				String type = request.has(JSON_ATTR_TYPE) ? request.get(JSON_ATTR_TYPE).getAsString() : null;
 				if (type == null)
 					continue;
-				switch(request.get(JSON_ATTR_TYPE).getAsString()) {
+				switch (request.get(JSON_ATTR_TYPE).getAsString()) {
 					case JSON_TYPE_NAME:
-						response = new NameHandler().handleRequest(request, state);
+						response = new NameHandler(Connection.this).handleRequest(request, state);
 						break;
 					case JSON_TYPE_CLOSE:
 						response = null;
@@ -56,13 +87,66 @@ public class Connection extends Thread {
 				}
 				System.out.println(response);
 				if (response != null) {
-					out.write(response.toString());
+					Connection.this.send(response);
+				}
+			}
+			close();
+			ServerState.getInstance().removeConnection(state.getName());
+		}
+
+		@Override
+		public void interrupt() {
+			close();
+			super.interrupt();
+		}
+
+		void close() {
+			try {
+				in.close();
+			} catch (IOException ignore) {
+
+			}
+		}
+	}
+
+	private class Sender extends Thread {
+		private BufferedWriter out;
+
+		Sender(OutputStream outStream) {
+			out = new BufferedWriter(new OutputStreamWriter(outStream));
+		}
+
+		@Override
+		public void run() {
+			//noinspection Duplicates
+			try {
+				//noinspection InfiniteLoopStatement
+				while (true) {
+					out.write(outQueue.take() + "\n");
 					out.flush();
 				}
-				ServerState.getInstance().removeName(state.getName());
+			} catch(InterruptedException ignore) {
+
+			} catch (IOException e) {
+				if (!isInterrupted())
+					e.printStackTrace();
+			} finally {
+				close();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+
+		@Override
+		public void interrupt() {
+			close();
+			super.interrupt();
+		}
+
+		void close() {
+			try {
+				out.close();
+			} catch (IOException ignore) {
+
+			}
 		}
 	}
 }

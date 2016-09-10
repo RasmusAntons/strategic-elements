@@ -32,7 +32,7 @@ public class Server implements Closeable {
 		while (true) {
 			try {
 				socket = serverSocket.accept();
-				new Connection(socket).start();
+				new Connection(socket);
 			} catch (SocketTimeoutException ignore) {
 
 			} catch (IOException e) {

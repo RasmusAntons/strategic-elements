@@ -1,10 +1,13 @@
 package net.frozenbit.strategicelements.screens;
 
 import com.badlogic.gdx.Screen;
+import net.frozenbit.strategicelements.StrategicElementsGame;
 
 public abstract class ManageableScreen implements Screen {
+	protected StrategicElementsGame game;
 
-	public ManageableScreen() {
+	public ManageableScreen(StrategicElementsGame game) {
+		this.game = game;
 	}
 
 	@Override

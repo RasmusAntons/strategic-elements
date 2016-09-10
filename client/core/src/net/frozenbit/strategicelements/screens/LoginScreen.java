@@ -3,11 +3,11 @@ package net.frozenbit.strategicelements.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.google.gson.JsonObject;
 import net.frozenbit.strategicelements.Connection;
+import net.frozenbit.strategicelements.StrategicElementsGame;
 
 public class LoginScreen extends ManageableScreen implements Input.TextInputListener {
 
@@ -16,10 +16,10 @@ public class LoginScreen extends ManageableScreen implements Input.TextInputList
 	private SpriteBatch batch;
 	private boolean waiting;
 
-	public LoginScreen(Connection connection) {
-		super();
-		this.connection = connection;
-		background = new TextureRegion(new Texture("main.png"), 0, 0, 1200, 700);
+	public LoginScreen(StrategicElementsGame game) {
+		super(game);
+		this.connection = game.getConnection();
+		background = game.getTextureAtlas().findRegion("main");
 		batch = new SpriteBatch();
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, 1200, 700);
 		waiting = false;

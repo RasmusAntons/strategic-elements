@@ -5,29 +5,26 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import net.frozenbit.strategicelements.screens.LoginScreen;
+import net.frozenbit.strategicelements.screens.MainMenu;
+import net.frozenbit.strategicelements.screens.ScreenManager;
 
 public class StrategicElementsGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
+	ScreenManager screenManager;
 	
 	@Override
-	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+	public void create() {
+		screenManager = new ScreenManager();
+		screenManager.push(new LoginScreen());
 	}
 
 	@Override
-	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
+	public void render() {
+		screenManager.render();
 	}
 	
 	@Override
-	public void dispose () {
-		batch.dispose();
-		img.dispose();
+	public void dispose() {
+		screenManager.dispose();
 	}
 }

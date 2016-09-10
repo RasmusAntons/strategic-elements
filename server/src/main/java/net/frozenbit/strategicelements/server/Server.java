@@ -2,6 +2,7 @@ package net.frozenbit.strategicelements.server;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -12,8 +13,18 @@ public class Server implements Closeable {
 	private ServerSocket serverSocket;
 
 	public Server(int port) throws IOException {
-		serverSocket = new ServerSocket(port);
+		serverSocket = new ServerSocket();
+		serverSocket.setReuseAddress(true);
+		serverSocket.bind(new InetSocketAddress(port));
 		serverSocket.setSoTimeout(SO_TIMEOUT);
+
+		Runtime.getRuntime().addShutdownHook(
+			new Thread("server-shutdown-hook") {
+				@Override
+				public void run() {
+					close();
+				}
+			});
 	}
 
 	public void run() {
@@ -30,7 +41,11 @@ public class Server implements Closeable {
 		}
 	}
 
-	public void close() throws IOException {
-		serverSocket.close();
+	public void close() {
+		try {
+			serverSocket.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

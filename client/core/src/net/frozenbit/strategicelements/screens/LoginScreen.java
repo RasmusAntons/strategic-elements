@@ -6,14 +6,19 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.google.gson.JsonObject;
+import net.frozenbit.strategicelements.Connection;
 
 public class LoginScreen extends ManageableScreen implements Input.TextInputListener {
+
+	private Connection connection;
 	private TextureRegion background;
 	private SpriteBatch batch;
 	private boolean waiting;
 
-	public LoginScreen() {
+	public LoginScreen(Connection connection) {
 		super();
+		this.connection = connection;
 		background = new TextureRegion(new Texture("main.png"), 0, 0, 1200, 700);
 		batch = new SpriteBatch();
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, 1200, 700);
@@ -23,10 +28,15 @@ public class LoginScreen extends ManageableScreen implements Input.TextInputList
 	@Override
 	public void input(String text) {
 		System.out.println("You entered " + text);
+		JsonObject request = new JsonObject();
+		request.addProperty(Connection.JSON_ATTR_TYPE, Connection.JSON_TYPE_NAME);
+		request.addProperty(Connection.JSON_ATTR_NAME, text);
+		connection.send(request);
 	}
 
 	@Override
 	public void canceled() {
+		waiting = false;
 		System.out.println("Canceled!");
 	}
 

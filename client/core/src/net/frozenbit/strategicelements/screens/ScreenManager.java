@@ -1,15 +1,19 @@
 package net.frozenbit.strategicelements.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 
 import java.util.Stack;
 
 public class ScreenManager {
 	private Stack<ManageableScreen> screenStack;
 	private ManageableScreen currentScreen;
+	private InputMultiplexer inputMultiplexer;
 
 	public ScreenManager() {
-		screenStack = new Stack<ManageableScreen>();
+		screenStack = new Stack<>();
+		inputMultiplexer = new InputMultiplexer();
+		Gdx.input.setInputProcessor(inputMultiplexer);
 	}
 
 	public void push(ManageableScreen screen) {
@@ -18,6 +22,8 @@ public class ScreenManager {
 			screenStack.push(currentScreen);
 		}
 		currentScreen = screen;
+		inputMultiplexer.addProcessor(currentScreen);
+		currentScreen.initInput(inputMultiplexer);
 		currentScreen.show();
 	}
 
@@ -25,8 +31,14 @@ public class ScreenManager {
 		if (currentScreen != null) {
 			currentScreen.hide();
 			currentScreen.dispose();
-			currentScreen = screenStack.pop();
-			currentScreen.resume();
+			inputMultiplexer.clear();
+			if (!screenStack.isEmpty()) {
+				currentScreen = screenStack.pop();
+				currentScreen.initInput(inputMultiplexer);
+				currentScreen.resume();
+			} else {
+				Gdx.app.exit();
+			}
 		}
 	}
 
@@ -34,6 +46,7 @@ public class ScreenManager {
 		while (!screenStack.isEmpty()) {
 			screenStack.pop().dispose();
 		}
+		Gdx.input.setInputProcessor(null);
 	}
 
 	public ManageableScreen getCurrentScreen() {

@@ -1,6 +1,7 @@
 package net.frozenbit.strategicelements.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -24,4 +25,19 @@ public class MainMenu extends ManageableScreen {
 		batch.draw(background, 0, 0);
 		batch.end();
 	}
+
+	@Override
+	public boolean keyDown(int keycode) {
+		if (keycode == Input.Keys.ESCAPE) {
+			game.getScreenManager().pop();
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		return false;
+	}
+
 }

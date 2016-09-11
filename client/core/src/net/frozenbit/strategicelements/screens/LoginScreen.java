@@ -29,7 +29,7 @@ public class LoginScreen extends ManageableScreen implements Input.TextInputList
 
 	@Override
 	public void input(String text) {
-		System.out.println("You entered " + text);
+		game.getState().setName(text);
 		JsonObject request = new JsonObject();
 		request.addProperty(Connection.JSON_ATTR_TYPE, Connection.JSON_TYPE_NAME);
 		request.addProperty(Connection.JSON_ATTR_NAME, text);
@@ -39,7 +39,6 @@ public class LoginScreen extends ManageableScreen implements Input.TextInputList
 	@Override
 	public void canceled() {
 		waiting = false;
-		System.out.println("Canceled!");
 	}
 
 	@Override
@@ -48,7 +47,10 @@ public class LoginScreen extends ManageableScreen implements Input.TextInputList
 		batch.begin();
 		batch.draw(background, 0, 0);
 		batch.end();
-		if (!waiting) {
+		if (game.getState().isLoggedIn()) {
+			game.getScreenManager().swap(new MainMenu(game));
+			System.out.println("logged in as " + game.getState().getName());
+		} else if (!waiting) {
 			Gdx.input.getTextInput(this, "Enter your name", "", "Name");
 			waiting = true;
 		}
@@ -61,7 +63,7 @@ public class LoginScreen extends ManageableScreen implements Input.TextInputList
 			return;
 		boolean success = data.get(Connection.JSON_ATTR_SUCCESS).getAsBoolean();
 		if (success) {
-			System.out.println("SUCCESS");
+			game.getState().setLoggedIn(true);
 		} else {
 			waiting = false;
 		}

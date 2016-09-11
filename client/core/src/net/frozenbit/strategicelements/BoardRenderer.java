@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import net.frozenbit.strategicelements.entities.Entity;
@@ -57,9 +58,10 @@ public class BoardRenderer {
 		for (Entity entity : board.getEntities()) {
 			if (entity.getPosition() == null)
 				continue;
+			TextureRegion texture = entity.getTexture();
 			Vector2 offset = offset(entity.getDirection(), entity.getPartialDistance());
 			Vector2 renderPosition = center(entity.getPosition()).add(offset);
-			spriteBatch.draw(entity.getTexture(), renderPosition.x, renderPosition.y);
+			spriteBatch.draw(texture, renderPosition.x - texture.getRegionWidth() / 2, renderPosition.y - texture.getRegionHeight() / 2);
 		}
 		spriteBatch.end();
 	}
@@ -81,7 +83,7 @@ public class BoardRenderer {
 		Vector2 directionVector;
 		switch(direction) {
 			case NORTH:
-				directionVector = Y_AXIS_VEC.cpy();
+				directionVector = Y_AXIS_VEC.cpy().scl(-1);
 				break;
 			case NORTH_EAST:
 				directionVector = Z_AXIS_VEC.cpy();
@@ -90,13 +92,13 @@ public class BoardRenderer {
 				directionVector = X_AXIS_VEC.cpy();
 				break;
 			case SOUTH:
-				directionVector = Y_AXIS_VEC.cpy().scl(-1);
+				directionVector = Y_AXIS_VEC.cpy();
 				break;
 			case SOUTH_WEST:
-				directionVector = X_AXIS_VEC.cpy().scl(-1);
+				directionVector = Z_AXIS_VEC.cpy().scl(-1);
 				break;
 			case NORTH_WEST:
-				directionVector = Z_AXIS_VEC.cpy().scl(-1);
+				directionVector = X_AXIS_VEC.cpy().scl(-1);
 				break;
 			default:
 				// this should never happen

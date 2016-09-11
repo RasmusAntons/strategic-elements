@@ -5,12 +5,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import net.frozenbit.strategicelements.entities.DummyEntity;
+import net.frozenbit.strategicelements.screens.BoardScreen;
+import net.frozenbit.strategicelements.screens.LoginScreen;
 import net.frozenbit.strategicelements.screens.MainMenu;
 import net.frozenbit.strategicelements.screens.ScreenManager;
 
 public class StrategicElementsGame extends ApplicationAdapter {
 	private Connection connection;
 	private TextureAtlas textureAtlas;
+	private GameState state;
 
 	private ScreenManager screenManager;
 	private FontManager fontManager;
@@ -18,17 +21,11 @@ public class StrategicElementsGame extends ApplicationAdapter {
 	@Override
 	public void create() {
 		initState();
-		screenManager.push(new MainMenu(this));
-		//screenManager.push(new LoginScreen(this));
-		Board board = new Board();
-		DummyEntity entity = new DummyEntity(board, textureAtlas);
-		entity.setPosition(new GridPosition(7, 2));
-		entity.setDirection(GridPosition.Direction.SOUTH_WEST);
-		entity.setPartialDistance(0);
-		//screenManager.push(new BoardScreen(this, board));
+		screenManager.push(new LoginScreen(this));
 	}
 
 	private void initState() {
+		state = new GameState();
 		try {
 			connection = new Connection("raspi.rasmusantons.de", 5123);
 		} catch (GdxRuntimeException e) {
@@ -50,6 +47,10 @@ public class StrategicElementsGame extends ApplicationAdapter {
 
 	public ScreenManager getScreenManager() {
 		return screenManager;
+	}
+
+	public GameState getState() {
+		return state;
 	}
 
 	public FontManager getFontManager() {

@@ -22,6 +22,16 @@ public class ScreenManager {
 			screenStack.push(currentScreen);
 		}
 		currentScreen = screen;
+		inputMultiplexer.clear();
+		inputMultiplexer.addProcessor(currentScreen);
+		currentScreen.initInput(inputMultiplexer);
+		currentScreen.show();
+	}
+
+	public void swap(ManageableScreen screen) {
+		currentScreen.dispose();
+		currentScreen = screen;
+		inputMultiplexer.clear();
 		inputMultiplexer.addProcessor(currentScreen);
 		currentScreen.initInput(inputMultiplexer);
 		currentScreen.show();

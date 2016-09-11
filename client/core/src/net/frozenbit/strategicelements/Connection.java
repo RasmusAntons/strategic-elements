@@ -19,6 +19,8 @@ public class Connection implements Closeable {
 	public static final String JSON_ATTR_TYPE = "type";
 	public static final String JSON_TYPE_NAME = "name";
 	public static final String JSON_TYPE_CHALLENGE = "challenge";
+	public static final String JSON_TYPE_BUY = "buy";
+	public static final String JSON_TYPE_TURN = "turn";
 	public static final String JSON_ATTR_NAME = "name";
 	public static final String JSON_ATTR_SUCCESS = "success";
 	public static final String JSON_ATTR_MESSAGE = "msg";
@@ -70,9 +72,12 @@ public class Connection implements Closeable {
 	}
 
 	public void close() {
-		sender.interrupt();
-		receiver.interrupt();
-		socket.dispose();
+		if (sender != null)
+			sender.interrupt();
+		if (receiver != null)
+			receiver.interrupt();
+		if (socket !=null)
+			socket.dispose();
 	}
 
 	public boolean isOnline() {

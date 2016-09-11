@@ -12,6 +12,8 @@ public class Connection implements Closeable {
 	public static final String JSON_ATTR_TYPE = "type";
 	public static final String JSON_TYPE_NAME = "name";
 	public static final String JSON_TYPE_CHALLENGE = "challenge";
+	public static final String JSON_TYPE_BUY = "buy";
+	public static final String JSON_TYPE_TURN = "turn";
 	public static final String JSON_ATTR_NAME = "name";
 	public static final String JSON_ATTR_SUCCESS = "success";
 	public static final String JSON_ATTR_MESSAGE = "msg";
@@ -86,6 +88,12 @@ public class Connection implements Closeable {
 						break;
 					case JSON_TYPE_CHALLENGE:
 						response = new ChallengeHandler(Connection.this).handleRequest(request, state);
+						break;
+					case JSON_TYPE_BUY:
+						response = new BuyHandler().handleRequest(request, state);
+						break;
+					case JSON_TYPE_TURN:
+						response = new TurnHandler().handleRequest(request, state);
 						break;
 					case JSON_TYPE_CLOSE:
 						response = null;

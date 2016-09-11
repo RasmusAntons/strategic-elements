@@ -48,7 +48,7 @@ public class LoginScreen extends ManageableScreen implements Input.TextInputList
 		batch.begin();
 		batch.draw(background, 0, 0);
 		batch.end();
-		if (game.getState().isLoggedIn()) {
+		if (game.getState().isLoggedIn() || !connection.isOnline()) {
 			game.getScreenManager().swap(new MainMenu(game));
 			game.getState().setPhase(GameState.GamePhase.READY);
 			System.out.println("logged in as " + game.getState().getName());

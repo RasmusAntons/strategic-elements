@@ -102,6 +102,7 @@ public class PlayScreen extends BoardScreen implements NetworkListener {
 		jsonTurn.addProperty("destX", destination.getX());
 		jsonTurn.addProperty("destY", destination.getY());
 		request.add("turn", jsonTurn);
+		game.getConnection().send(request);
 	}
 
 	@Override

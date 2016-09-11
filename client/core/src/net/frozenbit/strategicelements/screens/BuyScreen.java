@@ -30,7 +30,7 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 	private final TextWidget fireBudgetWidget;
 	private final TextWidget waterBudgetWidget;
 	private final TextWidget earthBudgetWidget;
-	private boolean play;
+	private boolean play, alreadyDone;
 	private JsonArray jsonEnemyEntities;
 	private int firePointsLeft = 10, waterPointsLeft = 10, earthPointsLeft = 10;
 	private Entity.Type currentEntityType;
@@ -77,8 +77,6 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 		doneButton.setX(earthButton.getX() + earthButton.getWidth() + 100);
 		doneButton.setY(80);
 		doneButton.setOnClickListener(new ButtonWidget.OnClickListener() {
-			private boolean alreadyDone;
-
 			@Override
 			public void onClick(ButtonWidget widget) {
 				if (alreadyDone) {
@@ -120,7 +118,7 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if (currentEntityType == null) {
+		if (currentEntityType == null || alreadyDone) {
 			return true;
 		}
 

@@ -103,12 +103,11 @@ public class Entity implements Disposable {
 				} else {
 					partialDistance = 0;
 					moving = false;
-
+					renderPosition = position;
 				}
 				renderPosition = renderPosition.getNeighbor(direction);
 			} else {
 				partialDistance = partialDistance + distance;
-				renderPosition = position;
 			}
 		}
 	}

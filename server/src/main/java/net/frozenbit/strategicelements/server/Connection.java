@@ -14,8 +14,11 @@ public class Connection implements Closeable {
 	public static final String JSON_TYPE_CHALLENGE = "challenge";
 	public static final String JSON_TYPE_BUY = "buy";
 	public static final String JSON_TYPE_TURN = "turn";
+	public static final String JSON_TYPE_PLAY = "play";
 	public static final String JSON_ATTR_NAME = "name";
 	public static final String JSON_ATTR_SUCCESS = "success";
+	public static final String JSON_ATTR_ENTITIES = "entities";
+	public static final String JSON_ATTR_TURN = "turn";
 	public static final String JSON_ATTR_MESSAGE = "msg";
 	public static final String JSON_TYPE_CLOSE = "close";
 

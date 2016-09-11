@@ -1,8 +1,6 @@
 package net.frozenbit.strategicelements.server;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 public class ServerState {
 	private static ServerState instance;

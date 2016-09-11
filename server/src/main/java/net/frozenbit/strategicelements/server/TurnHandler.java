@@ -6,6 +6,7 @@ public class TurnHandler extends RequestHandler {
 
 	@Override
 	JsonObject handleRequest(JsonObject request, ConnectionState state) {
+		state.getEnemyConnection().send(request);
 		return null;
 	}
 }

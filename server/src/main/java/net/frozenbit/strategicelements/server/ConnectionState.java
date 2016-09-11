@@ -8,6 +8,7 @@ public class ConnectionState {
 	public ConnectionState() {
 		phase = GamePhase.INIT;
 		name = null;
+		enemyConnection = null;
 	}
 
 	public synchronized GamePhase getPhase() {

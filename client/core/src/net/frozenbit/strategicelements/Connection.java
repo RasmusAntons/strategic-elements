@@ -15,8 +15,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Connection implements Closeable {
-	public static final String JSON_TYPE_NAME = "name";
 	public static final String JSON_ATTR_TYPE = "type";
+	public static final String JSON_TYPE_NAME = "name";
+	public static final String JSON_TYPE_REQUEST = "request";
 	public static final String JSON_ATTR_NAME = "name";
 	public static final String JSON_ATTR_SUCCESS = "success";
 	public static final String JSON_TYPE_CLOSE = "close";

@@ -9,8 +9,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Connection implements Closeable {
-	public static final String JSON_TYPE_NAME = "name";
 	public static final String JSON_ATTR_TYPE = "type";
+	public static final String JSON_TYPE_NAME = "name";
+	public static final String JSON_TYPE_REQUEST = "request";
 	public static final String JSON_ATTR_NAME = "name";
 	public static final String JSON_ATTR_SUCCESS = "success";
 	public static final String JSON_TYPE_CLOSE = "close";
@@ -78,6 +79,8 @@ public class Connection implements Closeable {
 					case JSON_TYPE_NAME:
 						response = new NameHandler(Connection.this).handleRequest(request, state);
 						break;
+					case JSON_TYPE_REQUEST:
+						response = new ChallengeHandler().handleRequest(request, state);
 					case JSON_TYPE_CLOSE:
 						response = null;
 						close = true;

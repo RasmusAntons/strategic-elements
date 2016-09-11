@@ -14,6 +14,7 @@ import net.frozenbit.strategicelements.entities.Entity;
 import net.frozenbit.strategicelements.tiles.Tile;
 
 import java.util.Map;
+import java.util.Random;
 
 public class BoardRenderer {
 	private static final float TILE_EDGE_LEN = 20.0f;
@@ -56,8 +57,11 @@ public class BoardRenderer {
 					center.y - outLine.originalHeight / 2);
 		}
 		for (Entity entity : board.getEntities()) {
+			entity.onTick(delta);
 			if (entity.getPosition() == null)
 				continue;
+			if (!entity.isMoving())
+				entity.move(GridPosition.Direction.values()[new Random().nextInt(GridPosition.Direction.values().length)]);
 			TextureRegion texture = entity.getTexture();
 			Vector2 offset = offset(entity.getDirection(), entity.getPartialDistance());
 			Vector2 renderPosition = center(entity.getPosition()).add(offset);

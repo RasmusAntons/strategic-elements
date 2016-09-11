@@ -74,6 +74,12 @@ public class BoardRenderer {
 			Vector2 renderPosition = center(entity.getRenderPosition()).add(offset);
 			drawTexture(texture, renderPosition.x, renderPosition.y);
 			drawTexture(levelOverlays.get(entity.getLevel() - 1), renderPosition.x, renderPosition.y);
+			if (!entity.isEnemy()) {
+				Vector2 center = center(entity.getPosition());
+				spriteBatch.setColor(0, 0.9f, 0, 1);
+				drawTexture(outLine, center.x, center.y);
+				spriteBatch.setColor(Color.WHITE);
+			}
 		}
 		spriteBatch.end();
 	}

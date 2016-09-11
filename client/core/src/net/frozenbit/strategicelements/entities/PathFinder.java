@@ -72,7 +72,7 @@ public class PathFinder {
 		while (pathParent.containsKey(goalNode)) {
 			GridPosition.Direction direction = pathParent.get(goalNode);
 			goalNode = goalNode.getNeighbor(direction);
-			path.addFirst(direction);
+			path.addFirst(direction.invert());
 		}
 		return path;
 	}

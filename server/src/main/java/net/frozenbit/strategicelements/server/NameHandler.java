@@ -16,8 +16,10 @@ class NameHandler extends RequestHandler {
 	public JsonObject handleRequest(JsonObject request, ConnectionState state) {
 		String name = request.get(Connection.JSON_ATTR_NAME).getAsString();
 		boolean success = ServerState.getInstance().addConnection(name, connection);
-		if (success)
+		if (success) {
 			state.setName(name);
+			state.setPhase(ConnectionState.GamePhase.READY);
+		}
 		JsonObject response = new JsonObject();
 		response.addProperty(Connection.JSON_ATTR_TYPE, Connection.JSON_TYPE_NAME);
 		response.addProperty(Connection.JSON_ATTR_SUCCESS, success);

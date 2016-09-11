@@ -26,12 +26,7 @@ public class StrategicElementsGame extends ApplicationAdapter {
 
 	private void initState() {
 		state = new GameState();
-		try {
-			connection = new Connection("raspi.rasmusantons.de", 5123);
-		} catch (GdxRuntimeException e) {
-			e.printStackTrace();
-			//System.exit(-1);
-		}
+		connection = new Connection("raspi.rasmusantons.de", 5123);
 		textureAtlas = new TextureAtlas(Gdx.files.internal("textures.atlas"));
 		screenManager = new ScreenManager();
 		fontManager = new FontManager();

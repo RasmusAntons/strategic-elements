@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.net.SocketHints;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -17,28 +18,34 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Connection implements Closeable {
 	public static final String JSON_ATTR_TYPE = "type";
 	public static final String JSON_TYPE_NAME = "name";
-	public static final String JSON_TYPE_REQUEST = "request";
+	public static final String JSON_TYPE_CHALLENGE = "challenge";
 	public static final String JSON_ATTR_NAME = "name";
 	public static final String JSON_ATTR_SUCCESS = "success";
+	public static final String JSON_ATTR_MESSAGE = "msg";
 	public static final String JSON_TYPE_CLOSE = "close";
 
 	private Socket socket;
 	private Sender sender;
 	private Receiver receiver;
+	private boolean online;
 	private final BlockingQueue<String> outQueue;
 	private final List<NetworkListener> networkListeners;
 	private JsonParser parser;
 
 	public Connection(String host, int port) {
-		SocketHints hints = new SocketHints();
-		this.socket = Gdx.net.newClientSocket(Net.Protocol.TCP, host, port, hints);
 		outQueue = new LinkedBlockingQueue<>();
 		networkListeners = new ArrayList<>();
 		parser = new JsonParser();
-		receiver = new Receiver(socket.getInputStream());
-		sender = new Sender(socket.getOutputStream());
-		receiver.start();
-		sender.start();
+		SocketHints hints = new SocketHints();
+		try {
+			this.socket = Gdx.net.newClientSocket(Net.Protocol.TCP, host, port, hints);
+			receiver = new Receiver(socket.getInputStream());
+			sender = new Sender(socket.getOutputStream());
+			receiver.start();
+			sender.start();
+		} catch (GdxRuntimeException e) {
+			this.online = false;
+		}
 	}
 
 	public void send(JsonObject request) {
@@ -65,6 +72,10 @@ public class Connection implements Closeable {
 		sender.interrupt();
 		receiver.interrupt();
 		socket.dispose();
+	}
+
+	public boolean isOnline() {
+		return online;
 	}
 
 	private class Receiver extends Thread {

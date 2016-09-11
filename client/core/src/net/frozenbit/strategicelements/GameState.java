@@ -36,6 +36,6 @@ public class GameState {
 	}
 
 	public enum GamePhase {
-		INIT, BUY, PLAY, OVER
+		INIT, READY, WAITING, BUY, PLAY, OVER
 	}
 }

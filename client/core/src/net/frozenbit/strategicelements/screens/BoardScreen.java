@@ -22,6 +22,8 @@ public class BoardScreen extends ManageableScreen {
 	public void render(float delta) {
 		switch (game.getState().getPhase()) {
 			case INIT:
+				break;
+			case READY:
 				game.getState().setPhase(GameState.GamePhase.BUY);
 				break;
 			case BUY:

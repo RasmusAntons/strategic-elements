@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.google.gson.JsonObject;
 import net.frozenbit.strategicelements.Connection;
+import net.frozenbit.strategicelements.GameState;
 import net.frozenbit.strategicelements.NetworkListener;
 import net.frozenbit.strategicelements.StrategicElementsGame;
 
@@ -49,6 +50,7 @@ public class LoginScreen extends ManageableScreen implements Input.TextInputList
 		batch.end();
 		if (game.getState().isLoggedIn()) {
 			game.getScreenManager().swap(new MainMenu(game));
+			game.getState().setPhase(GameState.GamePhase.READY);
 			System.out.println("logged in as " + game.getState().getName());
 		} else if (!waiting) {
 			Gdx.input.getTextInput(this, "Enter your name", "", "Name");

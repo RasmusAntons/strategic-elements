@@ -36,6 +36,23 @@ public class ServerState {
 		}
 	}
 
+	public Connection getConnection(String name) {
+		synchronized (connections) {
+			return connections.get(name);
+		}
+	}
+
+	public Connection getReadyPlayer() {
+		synchronized (connections) {
+			for (Connection connection : connections.values()) {
+				if (connection.getState().getPhase() == ConnectionState.GamePhase.READY) {
+					return connection;
+				}
+			}
+		}
+		return null;
+	}
+
 	public int playerCount() {
 		synchronized (connections) {
 			return connections.size();

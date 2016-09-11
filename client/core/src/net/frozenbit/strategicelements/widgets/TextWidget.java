@@ -26,12 +26,14 @@ public class TextWidget extends BaseWidget {
 		this.color = color;
 	}
 
-	public float getWidth() {
-		return textLayout.width;
+	@Override
+	public int getWidth() {
+		return (int) textLayout.width;
 	}
 
-	public float getHeight() {
-		return textLayout.height;
+	@Override
+	public int getHeight() {
+		return (int) textLayout.height;
 	}
 
 	@Override

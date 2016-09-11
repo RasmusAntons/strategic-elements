@@ -6,4 +6,9 @@ public class VoidTile extends Tile {
 	public boolean canWalk() {
 		return false;
 	}
+
+	@Override
+	public String getName() {
+		return "void";
+	}
 }

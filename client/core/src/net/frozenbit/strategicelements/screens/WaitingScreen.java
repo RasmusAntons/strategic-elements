@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import net.frozenbit.strategicelements.*;
 import net.frozenbit.strategicelements.entities.DummyEntity;
@@ -22,9 +21,9 @@ import java.util.Random;
  */
 public class WaitingScreen extends ManageableScreen implements NetworkListener {
 	public static final Color[] CIRCLE_COLORS = {Color.RED, Color.OLIVE, Color.BLUE};
-	private boolean matched;
 	private final ShapeRenderer shapeRenderer;
 	private final Random random;
+	private boolean matched;
 	private SpriteBatch batch;
 	private List<BaseWidget> widgets;
 	private List<AnimatedCircle> circles;
@@ -75,7 +74,7 @@ public class WaitingScreen extends ManageableScreen implements NetworkListener {
 			entity.setPosition(new GridPosition(7, 2));
 			entity.setDirection(GridPosition.Direction.SOUTH_EAST);
 			entity.setPartialDistance(0);
-			game.getScreenManager().push(new BoardScreen(game, board));
+			game.getScreenManager().push(new BuyScreen(game, board));
 			return;
 		}
 

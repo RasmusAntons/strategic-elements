@@ -1,6 +1,7 @@
 package net.frozenbit.strategicelements.widgets;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,6 +13,7 @@ public class ButtonWidget extends TextWidget {
 	private NinePatch backgroundNormal, backgroundPressed;
 	private boolean pressed;
 	private OnClickListener listener;
+	private Color tint = Color.WHITE;
 
 	public ButtonWidget(String text, BitmapFont font, NinePatch backgroundNormal, NinePatch backgroundPressed) {
 		super(text, font);
@@ -21,6 +23,10 @@ public class ButtonWidget extends TextWidget {
 
 	public void setPadding(int padding) {
 		this.padding = padding;
+	}
+
+	public void setTint(Color tint) {
+		this.tint = tint;
 	}
 
 	public void setOnClickListener(OnClickListener listener) {
@@ -62,11 +68,13 @@ public class ButtonWidget extends TextWidget {
 
 	@Override
 	public void renderSprites(SpriteBatch batch, float delta) {
+		batch.setColor(tint);
 		if (hovered && pressed) {
 			drawBackground(batch, backgroundPressed);
 		} else {
 			drawBackground(batch, backgroundNormal);
 		}
+		batch.setColor(Color.WHITE);
 		x += padding;
 		y -= padding;
 		super.renderSprites(batch, delta);
@@ -80,13 +88,13 @@ public class ButtonWidget extends TextWidget {
 
 
 	@Override
-	public float getWidth() {
-		return super.getWidth() + 2f * padding;
+	public int getWidth() {
+		return super.getWidth() + 2 * padding;
 	}
 
 	@Override
-	public float getHeight() {
-		return super.getHeight() + 2f * padding;
+	public int getHeight() {
+		return super.getHeight() + 2 * padding;
 	}
 
 	public interface OnClickListener {

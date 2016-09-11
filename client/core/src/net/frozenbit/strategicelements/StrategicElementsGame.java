@@ -3,11 +3,7 @@ package net.frozenbit.strategicelements;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import net.frozenbit.strategicelements.entities.DummyEntity;
-import net.frozenbit.strategicelements.screens.BoardScreen;
 import net.frozenbit.strategicelements.screens.LoginScreen;
-import net.frozenbit.strategicelements.screens.MainMenu;
 import net.frozenbit.strategicelements.screens.ScreenManager;
 
 public class StrategicElementsGame extends ApplicationAdapter {

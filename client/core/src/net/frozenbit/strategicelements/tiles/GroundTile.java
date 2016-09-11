@@ -6,4 +6,9 @@ public class GroundTile extends Tile {
 	public boolean canWalk() {
 		return true;
 	}
+
+	@Override
+	public String getName() {
+		return "ground";
+	}
 }

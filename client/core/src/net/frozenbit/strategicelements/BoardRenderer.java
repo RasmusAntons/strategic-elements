@@ -4,12 +4,12 @@ package net.frozenbit.strategicelements;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import net.frozenbit.strategicelements.entities.Entity;
 import net.frozenbit.strategicelements.tiles.Tile;
 
@@ -26,35 +26,35 @@ public class BoardRenderer {
 	private final OrthographicCamera camera;
 	private final SpriteBatch spriteBatch;
 	private final TextureAtlas.AtlasRegion outLine;
+	private final Array<TextureAtlas.AtlasRegion> groundTextures;
+	private final TextureAtlas.AtlasRegion overlayTexture;
 	private Board board;
-	private long count;
 
 	public BoardRenderer(Board board, TextureAtlas atlas) {
 		camera = new OrthographicCamera(1200, 700);
 		this.board = board;
 		spriteBatch = new SpriteBatch();
 		outLine = atlas.findRegion("outline");
+		groundTextures = atlas.findRegions("ground");
+		overlayTexture = atlas.findRegion("overlay");
 	}
 
 	public void render(float delta) {
 		int x = Gdx.input.getX();
 		int y = Gdx.input.getY();
-		Vector3 mouse = camera.unproject(new Vector3(x, y, 0));
-		GridPosition gridPosition = pixelToGrid((int) mouse.x, (int) mouse.y);
+		GridPosition gridPosition = mouseToGrid(x, y);
 		spriteBatch.setProjectionMatrix(camera.combined);
 		spriteBatch.begin();
 		for (Map.Entry<GridPosition, Tile> tileEntry : board.getTiles()) {
 			Vector2 center = center(tileEntry.getKey());
-			if (tileEntry.getKey().getX() == 0 && tileEntry.getKey().getY() == 0) {
-				spriteBatch.setColor(1, 0, 0, 1);
-			} else {
+			TextureRegion region = groundTextures.first();
+			drawTexture(region, center.x, center.y);
+			if (gridPosition.equals(tileEntry.getKey())) {
+				spriteBatch.setColor(0, 0, 1, 0.1f);
+				drawTexture(overlayTexture, center.x, center.y);
 				spriteBatch.setColor(Color.WHITE);
 			}
-			if (gridPosition.equals(tileEntry.getKey())) {
-				spriteBatch.setColor(Color.BLUE);
-			}
-			spriteBatch.draw(outLine, center.x - outLine.originalWidth / 2,
-					center.y - outLine.originalHeight / 2);
+			drawTexture(outLine, center.x, center.y);
 		}
 		for (Entity entity : board.getEntities()) {
 			entity.onTick(delta);
@@ -65,13 +65,28 @@ public class BoardRenderer {
 			TextureRegion texture = entity.getTexture();
 			Vector2 offset = offset(entity.getDirection(), entity.getPartialDistance());
 			Vector2 renderPosition = center(entity.getPosition()).add(offset);
-			spriteBatch.draw(texture, renderPosition.x - texture.getRegionWidth() / 2, renderPosition.y - texture.getRegionHeight() / 2);
+			drawTexture(texture, renderPosition.x, renderPosition.y);
 		}
 		spriteBatch.end();
 	}
 
-	// formula from http://www.redblobgames.com/grids/hexagons/#conversions
-	private GridPosition pixelToGrid(int x, int y) {
+	private void drawTexture(TextureRegion texture, float x, float y) {
+		spriteBatch.draw(texture, x - texture.getRegionWidth() / 2, y - texture.getRegionHeight() / 2);
+	}
+
+
+	/**
+	 * Convert input coordinates (mouse, touchscreen). Formula taken from this
+	 * <a href="http://www.redblobgames.com/grids/hexagons/#conversions">helpful website</a>
+	 *
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 * @return GridPosition that is hovered. It can be no tile at this position
+	 */
+	public GridPosition mouseToGrid(int x, int y) {
+		Vector3 worldPos = camera.unproject(new Vector3(x, y, 0));
+		x = (int) worldPos.x;
+		y = (int) worldPos.y;
 		float q = x * 2f / 3f / TILE_EDGE_LEN;
 		float r = (float) ((-x / 3f + Math.sqrt(3) / 3f * -y) / TILE_EDGE_LEN);
 		return GridPosition.axialRound(q, r);
@@ -85,7 +100,7 @@ public class BoardRenderer {
 
 	private Vector2 offset(GridPosition.Direction direction, float partialDistance) {
 		Vector2 directionVector;
-		switch(direction) {
+		switch (direction) {
 			case NORTH:
 				directionVector = Y_AXIS_VEC.cpy().scl(-1);
 				break;

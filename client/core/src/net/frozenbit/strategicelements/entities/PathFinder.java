@@ -47,7 +47,7 @@ public class PathFinder {
 		openList.add(startNode);
 		while (!openList.isEmpty()) {
 			GridPosition node = openList.removeFirst();
-			if (node == destination) {
+			if (node.equals(destination)) {
 				return constructPath(pathParent, destination);
 			} else {
 				closedList.add(node);
@@ -72,7 +72,7 @@ public class PathFinder {
 		while (pathParent.containsKey(goalNode)) {
 			GridPosition.Direction direction = pathParent.get(goalNode);
 			goalNode = goalNode.getNeighbor(direction);
-			path.addFirst(direction.invert());
+			path.addFirst(direction);
 		}
 		return path;
 	}

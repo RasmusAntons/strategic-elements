@@ -23,8 +23,8 @@ public class ScreenManager {
 		}
 		currentScreen = screen;
 		inputMultiplexer.clear();
-		inputMultiplexer.addProcessor(currentScreen);
 		currentScreen.initInput(inputMultiplexer);
+		inputMultiplexer.addProcessor(currentScreen);
 		currentScreen.show();
 	}
 
@@ -32,8 +32,8 @@ public class ScreenManager {
 		currentScreen.dispose();
 		currentScreen = screen;
 		inputMultiplexer.clear();
-		inputMultiplexer.addProcessor(currentScreen);
 		currentScreen.initInput(inputMultiplexer);
+		inputMultiplexer.addProcessor(currentScreen);
 		currentScreen.show();
 	}
 
@@ -45,6 +45,7 @@ public class ScreenManager {
 			if (!screenStack.isEmpty()) {
 				currentScreen = screenStack.pop();
 				currentScreen.initInput(inputMultiplexer);
+				inputMultiplexer.addProcessor(currentScreen);
 				currentScreen.resume();
 			} else {
 				Gdx.app.exit();

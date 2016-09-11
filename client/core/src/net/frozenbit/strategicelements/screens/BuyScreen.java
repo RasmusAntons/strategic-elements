@@ -7,7 +7,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import net.frozenbit.strategicelements.*;
+import net.frozenbit.strategicelements.Board;
+import net.frozenbit.strategicelements.BoardRenderer;
+import net.frozenbit.strategicelements.GridPosition;
+import net.frozenbit.strategicelements.StrategicElementsGame;
+import net.frozenbit.strategicelements.entities.Entity;
 import net.frozenbit.strategicelements.tiles.Tile;
 import net.frozenbit.strategicelements.widgets.BaseWidget;
 import net.frozenbit.strategicelements.widgets.ButtonWidget;
@@ -30,6 +34,7 @@ public class BuyScreen extends ManageableScreen implements ButtonWidget.OnClickL
 	private BoardRenderer boardRenderer;
 	private List<BaseWidget> widgets;
 	private Board board;
+	private Entity.Type currentEntityType;
 
 	public BuyScreen(StrategicElementsGame game, Board board) {
 		super(game);
@@ -51,6 +56,7 @@ public class BuyScreen extends ManageableScreen implements ButtonWidget.OnClickL
 		fireButton.setTint(Color.ORANGE);
 		fireButton.setX(400);
 		fireButton.setY(80);
+		fireButton.setOnClickListener(this);
 		widgets.add(fireButton);
 		TextWidget fireBudgetWidget = textBelow(smallFont, fireButton);
 		widgets.add(fireBudgetWidget);
@@ -59,6 +65,7 @@ public class BuyScreen extends ManageableScreen implements ButtonWidget.OnClickL
 		waterButton.setTint(Color.SKY);
 		waterButton.setX(fireButton.getX() + fireButton.getWidth() + 10);
 		waterButton.setY(80);
+		waterButton.setOnClickListener(this);
 		widgets.add(waterButton);
 		TextWidget waterBudgetWidget = textBelow(smallFont, waterButton);
 		widgets.add(waterBudgetWidget);
@@ -67,6 +74,7 @@ public class BuyScreen extends ManageableScreen implements ButtonWidget.OnClickL
 		earthButton.setTint(Color.BROWN);
 		earthButton.setX(waterButton.getX() + waterButton.getWidth() + 10);
 		earthButton.setY(80);
+		earthButton.setOnClickListener(this);
 		widgets.add(earthButton);
 		TextWidget earthBudgetWidget = textBelow(smallFont, earthButton);
 		widgets.add(earthBudgetWidget);
@@ -91,15 +99,29 @@ public class BuyScreen extends ManageableScreen implements ButtonWidget.OnClickL
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if (game.getState().getPhase() == GameState.GamePhase.BUY) {
-			GridPosition gridPosition = boardRenderer.mouseToGrid(screenX, screenY);
-			if (!board.hasTile(gridPosition)) {
-				return false;
-			}
-			Tile tile = board.getTile(gridPosition);
-			if (tile.canWalk()) {
+		if (currentEntityType == null) {
+			return true;
+		}
 
-			}
+		GridPosition gridPosition = boardRenderer.mouseToGrid(screenX, screenY);
+		if (!board.hasTile(gridPosition)) {
+			return false;
+		}
+
+		Tile tile = board.getTile(gridPosition);
+		if (!tile.canWalk()) {
+			return false;
+		}
+
+		Entity entity = board.getEntityByPosition(gridPosition);
+		if (entity != null && entity.getType() != currentEntityType) {
+			return false;
+		}
+
+		if (entity == null) {
+			Entity entity1 = new Entity(currentEntityType, gridPosition, board, game.getTextureAtlas());
+		} else if (entity.getLevel() < Entity.MAX_LEVEL) {
+			entity.setLevel(entity.getLevel() + 1);
 		}
 		return true;
 	}
@@ -107,11 +129,11 @@ public class BuyScreen extends ManageableScreen implements ButtonWidget.OnClickL
 	@Override
 	public void onClick(ButtonWidget widget) {
 		if (widget == fireButton) {
-
+			currentEntityType = Entity.Type.FIRE;
 		} else if (widget == waterButton) {
-
+			currentEntityType = Entity.Type.WATER;
 		} else if (widget == earthButton) {
-
+			currentEntityType = Entity.Type.EARTH;
 		}
 	}
 
@@ -123,25 +145,11 @@ public class BuyScreen extends ManageableScreen implements ButtonWidget.OnClickL
 		boardRenderer.render(delta);
 
 		batch.begin();
-		switch (game.getState().getPhase()) {
-			case BUY:
-				renderBuyPhase(delta);
-				break;
-			case PLAY:
-				break;
-			case OVER:
-				break;
-			default:
-				break;
-		}
 		for (BaseWidget widget : widgets) {
 			widget.renderSprites(batch, delta);
 		}
 		batch.end();
 	}
 
-	private void renderBuyPhase(float delta) {
-
-	}
 
 }

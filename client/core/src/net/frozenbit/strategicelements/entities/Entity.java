@@ -7,6 +7,7 @@ import net.frozenbit.strategicelements.Board;
 import net.frozenbit.strategicelements.GridPosition;
 
 public class Entity implements Disposable {
+	public static final int MAX_LEVEL = 3;
 	private static final float BASE_SPEED = 2;
 	private final TextureAtlas.AtlasRegion texture;
 	private final Type type;
@@ -19,15 +20,16 @@ public class Entity implements Disposable {
 	private float partialDistance;
 	private int level = 1;
 
-	public Entity(Type type, Board board, TextureAtlas atlas) {
+	public Entity(Type type, GridPosition position, Board board, TextureAtlas atlas) {
 		this.type = type;
 		this.board = board;
+		this.position = position;
 		texture = atlas.findRegion("entity_" + type.name().toLowerCase());
-		board.addEntity(this);
 		direction = GridPosition.Direction.NORTH;
 		moving = false;
 		speed = BASE_SPEED;
 		partialDistance = 0;
+		board.addEntity(this);
 	}
 
 	public Type getType() {
@@ -39,6 +41,9 @@ public class Entity implements Disposable {
 	}
 
 	public void setLevel(int level) {
+		if (level < 1 || level > MAX_LEVEL) {
+			throw new IllegalArgumentException("invalid level");
+		}
 		this.level = level;
 	}
 

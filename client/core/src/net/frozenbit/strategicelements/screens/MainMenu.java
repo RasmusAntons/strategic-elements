@@ -22,6 +22,8 @@ public class MainMenu extends ManageableScreen {
 	private List<BaseWidget> widgets;
 	private TextureRegion background;
 	private SpriteBatch batch;
+	private boolean quit;
+	private boolean play;
 
 	public MainMenu(final StrategicElementsGame game) {
 		super(game);
@@ -45,7 +47,7 @@ public class MainMenu extends ManageableScreen {
 			buttonWidget.setOnClickListener(new ButtonWidget.OnClickListener() {
 				@Override
 				public void onClick(ButtonWidget widget) {
-					game.getScreenManager().push(new WaitingScreen(game));
+					play = true;
 				}
 			});
 			widgets.add(buttonWidget);
@@ -62,6 +64,12 @@ public class MainMenu extends ManageableScreen {
 
 	@Override
 	public void render(float delta) {
+		if (quit) {
+			game.getScreenManager().pop();
+		}
+		if (play) {
+			game.getScreenManager().push(new WaitingScreen(game));
+		}
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
@@ -77,7 +85,7 @@ public class MainMenu extends ManageableScreen {
 	@Override
 	public boolean keyDown(int keycode) {
 		if (keycode == Input.Keys.ESCAPE) {
-			game.getScreenManager().pop();
+			quit = true;
 			return true;
 		}
 		return false;

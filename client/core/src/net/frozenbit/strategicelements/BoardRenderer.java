@@ -14,7 +14,6 @@ import net.frozenbit.strategicelements.entities.Entity;
 import net.frozenbit.strategicelements.tiles.Tile;
 
 import java.util.Map;
-import java.util.Random;
 
 public class BoardRenderer {
 	private static final float TILE_EDGE_LEN = 20.0f;
@@ -28,6 +27,7 @@ public class BoardRenderer {
 	private final TextureAtlas.AtlasRegion outLine;
 	private final Array<TextureAtlas.AtlasRegion> groundTextures;
 	private final TextureAtlas.AtlasRegion overlayTexture;
+	private final Array<TextureAtlas.AtlasRegion> levelOverlays;
 	private Board board;
 
 	public BoardRenderer(Board board, TextureAtlas atlas) {
@@ -37,6 +37,7 @@ public class BoardRenderer {
 		outLine = atlas.findRegion("outline");
 		groundTextures = atlas.findRegions("ground");
 		overlayTexture = atlas.findRegion("overlay");
+		levelOverlays = atlas.findRegions("level_overlay");
 	}
 
 	public void render(float delta) {
@@ -58,14 +59,11 @@ public class BoardRenderer {
 		}
 		for (Entity entity : board.getEntities()) {
 			entity.onTick(delta);
-			if (entity.getPosition() == null)
-				continue;
-			if (!entity.isMoving())
-				entity.move(GridPosition.Direction.values()[new Random().nextInt(GridPosition.Direction.values().length)]);
 			TextureRegion texture = entity.getTexture();
 			Vector2 offset = offset(entity.getDirection(), entity.getPartialDistance());
 			Vector2 renderPosition = center(entity.getPosition()).add(offset);
 			drawTexture(texture, renderPosition.x, renderPosition.y);
+			drawTexture(levelOverlays.get(entity.getLevel() - 1), renderPosition.x, renderPosition.y);
 		}
 		spriteBatch.end();
 	}

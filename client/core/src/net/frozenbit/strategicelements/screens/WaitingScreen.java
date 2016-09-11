@@ -70,8 +70,7 @@ public class WaitingScreen extends ManageableScreen implements NetworkListener {
 		if (matched) {
 			game.getState().setPhase(GameState.GamePhase.BUY);
 			Board board = new Board();
-			Entity entity = new Entity(Entity.Type.WATER, board, game.getTextureAtlas());
-			entity.setPosition(new GridPosition(7, 2));
+			Entity entity = new Entity(Entity.Type.WATER, new GridPosition(7, 2), board, game.getTextureAtlas());
 			entity.setDirection(GridPosition.Direction.SOUTH_EAST);
 			entity.setPartialDistance(0);
 			game.getScreenManager().push(new BuyScreen(game, board));

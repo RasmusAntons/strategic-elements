@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.google.gson.JsonObject;
 import net.frozenbit.strategicelements.*;
-import net.frozenbit.strategicelements.entities.DummyEntity;
+import net.frozenbit.strategicelements.entities.Entity;
 import net.frozenbit.strategicelements.widgets.BaseWidget;
 import net.frozenbit.strategicelements.widgets.TextWidget;
 
@@ -70,7 +70,7 @@ public class WaitingScreen extends ManageableScreen implements NetworkListener {
 		if (matched) {
 			game.getState().setPhase(GameState.GamePhase.BUY);
 			Board board = new Board();
-			DummyEntity entity = new DummyEntity(board, game.getTextureAtlas());
+			Entity entity = new Entity(Entity.Type.WATER, board, game.getTextureAtlas());
 			entity.setPosition(new GridPosition(7, 2));
 			entity.setDirection(GridPosition.Direction.SOUTH_EAST);
 			entity.setPartialDistance(0);

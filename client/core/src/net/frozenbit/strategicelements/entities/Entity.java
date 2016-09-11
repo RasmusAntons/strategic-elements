@@ -6,24 +6,40 @@ import com.badlogic.gdx.utils.Disposable;
 import net.frozenbit.strategicelements.Board;
 import net.frozenbit.strategicelements.GridPosition;
 
-public abstract class Entity implements Disposable {
+public class Entity implements Disposable {
 	private static final float BASE_SPEED = 2;
-
-	private Board board;
+	private final TextureAtlas.AtlasRegion texture;
+	private final Type type;
 	protected TextureAtlas atlas;
+	private Board board;
 	private GridPosition position;
 	private GridPosition.Direction direction;
 	private boolean moving;
 	private float speed;
 	private float partialDistance;
+	private int level = 1;
 
-	public Entity(Board board) {
+	public Entity(Type type, Board board, TextureAtlas atlas) {
+		this.type = type;
 		this.board = board;
+		texture = atlas.findRegion("entity_" + type.name().toLowerCase());
 		board.addEntity(this);
 		direction = GridPosition.Direction.NORTH;
 		moving = false;
 		speed = BASE_SPEED;
 		partialDistance = 0;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
 	}
 
 	public GridPosition getPosition() {
@@ -57,7 +73,9 @@ public abstract class Entity implements Disposable {
 		board.removeEntity(this);
 	}
 
-	public abstract TextureRegion getTexture();
+	public TextureRegion getTexture() {
+		return texture;
+	}
 
 	public GridPosition.Direction getDirection() {
 		return direction;
@@ -85,5 +103,9 @@ public abstract class Entity implements Disposable {
 
 	public void setSpeed(float speed) {
 		this.speed = speed;
+	}
+
+	public enum Type {
+		FIRE, WATER, EARTH
 	}
 }

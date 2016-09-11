@@ -86,6 +86,7 @@ public class Connection implements Closeable {
 						break;
 					case JSON_TYPE_CHALLENGE:
 						response = new ChallengeHandler(Connection.this).handleRequest(request, state);
+						break;
 					case JSON_TYPE_CLOSE:
 						response = null;
 						close = true;

@@ -13,16 +13,19 @@ class ChallengeHandler extends RequestHandler {
 
 	@Override
 	JsonObject handleRequest(JsonObject request, ConnectionState state) {
-		String name = request.get(Connection.JSON_ATTR_NAME).getAsString();
+		String name = request.get(Connection.JSON_ATTR_NAME).isJsonNull()
+			? null
+			: request.get(Connection.JSON_ATTR_NAME).getAsString();
 		boolean random = name == null;
 		Connection enemyConnection = random
-			? ServerState.getInstance().getReadyPlayer()
+			? ServerState.getInstance().getWaitingPlayer()
 			: ServerState.getInstance().getConnection(name);
 		if (enemyConnection == null) {
 			state.setPhase(ConnectionState.GamePhase.WAITING);
+			ServerState.printInfo();
 			return null;
 		}
-		if (enemyConnection.getState().getPhase() != ConnectionState.GamePhase.READY) {
+		if (enemyConnection.getState().getPhase() != ConnectionState.GamePhase.WAITING) {
 			state.setPhase(ConnectionState.GamePhase.WAITING);
 			return null;
 		}

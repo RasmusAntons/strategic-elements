@@ -42,15 +42,23 @@ public class ServerState {
 		}
 	}
 
-	public Connection getReadyPlayer() {
+	public Connection getWaitingPlayer() {
 		synchronized (connections) {
 			for (Connection connection : connections.values()) {
-				if (connection.getState().getPhase() == ConnectionState.GamePhase.READY) {
+				if (connection.getState().getPhase() == ConnectionState.GamePhase.WAITING) {
 					return connection;
 				}
 			}
 		}
 		return null;
+	}
+
+	public static void printInfo() {
+		System.out.print(String.format("%d players online: ", getInstance().playerCount()));
+		for (Connection connection : getInstance().connections.values()) {
+			System.out.print(String.format("%s (%s) ", connection.getState().getName(), connection.getState().getPhase().toString()));
+		}
+		System.out.println("");
 	}
 
 	public int playerCount() {

@@ -21,16 +21,13 @@ public class BoardScreen extends ManageableScreen {
 	@Override
 	public void render(float delta) {
 		switch (game.getState().getPhase()) {
-			case INIT:
-				break;
-			case READY:
-				game.getState().setPhase(GameState.GamePhase.BUY);
-				break;
 			case BUY:
 				break;
 			case PLAY:
 				break;
 			case OVER:
+				break;
+			default:
 				break;
 		}
 		Gdx.gl.glClearColor(1, 1, 1, 1);

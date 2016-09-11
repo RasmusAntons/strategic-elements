@@ -4,11 +4,13 @@ public class GameState {
 	private GamePhase phase;
 	private String name;
 	private boolean loggedIn;
+	private String enemyName;
 
 	public GameState() {
 		phase = GamePhase.INIT;
 		name = null;
 		loggedIn = false;
+		enemyName = null;
 	}
 
 	public synchronized GamePhase getPhase() {
@@ -33,6 +35,14 @@ public class GameState {
 
 	public synchronized void setLoggedIn(boolean loggedIn) {
 		this.loggedIn = loggedIn;
+	}
+
+	public synchronized String getEnemyName() {
+		return enemyName;
+	}
+
+	public synchronized void setEnemyName(String enemyName) {
+		this.enemyName = enemyName;
 	}
 
 	public enum GamePhase {

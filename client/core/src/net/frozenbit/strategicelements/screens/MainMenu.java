@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import net.frozenbit.strategicelements.Board;
+import net.frozenbit.strategicelements.GameState;
 import net.frozenbit.strategicelements.GridPosition;
 import net.frozenbit.strategicelements.StrategicElementsGame;
 import net.frozenbit.strategicelements.entities.DummyEntity;
@@ -51,6 +52,7 @@ public class MainMenu extends ManageableScreen {
 				}
 			});
 			widgets.add(buttonWidget);
+			game.getState().setPhase(GameState.GamePhase.READY);
 		}
 	}
 
@@ -79,14 +81,6 @@ public class MainMenu extends ManageableScreen {
 	public boolean keyDown(int keycode) {
 		if (keycode == Input.Keys.ESCAPE) {
 			game.getScreenManager().pop();
-			return true;
-		} else if (keycode == Input.Keys.SPACE) {
-			Board board = new Board();
-			DummyEntity entity = new DummyEntity(board, game.getTextureAtlas());
-			entity.setPosition(new GridPosition(7, 2));
-			entity.setDirection(GridPosition.Direction.SOUTH_EAST);
-			entity.setPartialDistance(0);
-			game.getScreenManager().push(new BoardScreen(game, board));
 			return true;
 		}
 		return false;

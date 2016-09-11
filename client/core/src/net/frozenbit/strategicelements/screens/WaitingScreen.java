@@ -6,7 +6,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import net.frozenbit.strategicelements.StrategicElementsGame;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import net.frozenbit.strategicelements.*;
+import net.frozenbit.strategicelements.entities.DummyEntity;
 import net.frozenbit.strategicelements.widgets.BaseWidget;
 import net.frozenbit.strategicelements.widgets.TextWidget;
 
@@ -17,8 +20,9 @@ import java.util.Random;
 /**
  * Screen that is shown while waiting for someone to challenge you
  */
-public class WaitingScreen extends ManageableScreen {
+public class WaitingScreen extends ManageableScreen implements NetworkListener {
 	public static final Color[] CIRCLE_COLORS = {Color.RED, Color.OLIVE, Color.BLUE};
+	private boolean matched;
 	private final ShapeRenderer shapeRenderer;
 	private final Random random;
 	private SpriteBatch batch;
@@ -27,6 +31,7 @@ public class WaitingScreen extends ManageableScreen {
 
 	public WaitingScreen(StrategicElementsGame game) {
 		super(game);
+		matched = false;
 		widgets = new ArrayList<>();
 		batch = new SpriteBatch();
 		circles = new ArrayList<>();
@@ -45,6 +50,13 @@ public class WaitingScreen extends ManageableScreen {
 		errorTextWidget.setX(50);
 		errorTextWidget.setY(Gdx.graphics.getHeight() - 50);
 		widgets.add(errorTextWidget);
+
+		game.getConnection().registerListener(this);
+		game.getState().setPhase(GameState.GamePhase.WAITING);
+		JsonObject request = new JsonObject();
+		request.addProperty(Connection.JSON_ATTR_TYPE, Connection.JSON_TYPE_CHALLENGE);
+		request.add(Connection.JSON_TYPE_NAME, null);
+		game.getConnection().send(request);
 	}
 
 	private void resetCircle(AnimatedCircle animatedCircle) {
@@ -56,6 +68,17 @@ public class WaitingScreen extends ManageableScreen {
 
 	@Override
 	public void render(float delta) {
+		if (matched) {
+			game.getState().setPhase(GameState.GamePhase.BUY);
+			Board board = new Board();
+			DummyEntity entity = new DummyEntity(board, game.getTextureAtlas());
+			entity.setPosition(new GridPosition(7, 2));
+			entity.setDirection(GridPosition.Direction.SOUTH_EAST);
+			entity.setPartialDistance(0);
+			game.getScreenManager().push(new BoardScreen(game, board));
+			return;
+		}
+
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -81,6 +104,15 @@ public class WaitingScreen extends ManageableScreen {
 			widget.renderSprites(batch, delta);
 		}
 		batch.end();
+	}
+
+	@Override
+	public void onDataReceived(JsonObject data) {
+		String type = data.get(Connection.JSON_ATTR_TYPE).getAsString();
+		if (!type.equals(Connection.JSON_TYPE_CHALLENGE))
+			return;
+		game.getState().setEnemyName(data.get(Connection.JSON_ATTR_NAME).getAsString());
+		matched = true;
 	}
 
 	private static class AnimatedCircle {

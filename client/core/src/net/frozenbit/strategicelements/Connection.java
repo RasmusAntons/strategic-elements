@@ -43,8 +43,9 @@ public class Connection implements Closeable {
 			sender = new Sender(socket.getOutputStream());
 			receiver.start();
 			sender.start();
+			online = true;
 		} catch (GdxRuntimeException e) {
-			this.online = false;
+			online = false;
 		}
 	}
 

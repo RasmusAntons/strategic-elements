@@ -31,6 +31,7 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 	private final TextWidget waterBudgetWidget;
 	private final TextWidget earthBudgetWidget;
 	private boolean play;
+	private JsonArray jsonEnemyEntities;
 	private int firePointsLeft = 10, waterPointsLeft = 10, earthPointsLeft = 10;
 	private Entity.Type currentEntityType;
 
@@ -198,32 +199,30 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 
 	private void sendBuy() {
 		JsonObject request = new JsonObject();
-
-	}
-
-	private void receiveBuy(JsonArray jsonEntities) {
-		for (JsonElement jsonElement : jsonEntities) {
-			JsonObject jsonEntity = jsonElement.getAsJsonObject();
-			GridPosition position = new GridPosition(jsonEntity.get("x").getAsInt(), jsonEntity.get("y").getAsInt());
-			int level = jsonEntity.get("lvl").getAsInt();
-			Entity.Type type;
-			switch (jsonEntity.get("type").getAsString()) {
-				case "fire":
-					type = Entity.Type.FIRE;
+		request.addProperty(Connection.JSON_ATTR_TYPE, Connection.JSON_TYPE_BUY);
+		JsonArray jsonEntities = new JsonArray();
+		for (Entity entity : board.getEntities()) {
+			JsonObject jsonEntity = new JsonObject();
+			jsonEntity.addProperty("x", entity.getPosition().getX());
+			jsonEntity.addProperty("y", entity.getPosition().getY());
+			jsonEntity.addProperty("lvl", entity.getLevel());
+			switch (entity.getType()) {
+				case FIRE:
+					jsonEntity.addProperty("type", "fire");
 					break;
-				case "water":
-					type = Entity.Type.WATER;
+				case WATER:
+					jsonEntity.addProperty("type", "water");
 					break;
-				case "earth":
-					type = Entity.Type.EARTH;
+				case EARTH:
+					jsonEntity.addProperty("type", "earth");
 					break;
 				default:
 					throw new AssertionError("invalid Type");
 			}
-			Entity entity = new Entity(type, position, board, game.getTextureAtlas());
-			entity.setLevel(level);
-			entity.setEnemy(true);
+			jsonEntities.add(jsonEntity);
 		}
+		request.add(Connection.JSON_ATTR_ENTITIES, jsonEntities);
+		game.getConnection().send(request);
 	}
 
 	@Override
@@ -231,9 +230,31 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 		String type = data.get(Connection.JSON_ATTR_TYPE).getAsString();
 		switch(type) {
 			case Connection.JSON_TYPE_BUY:
-				receiveBuy(data.get(Connection.JSON_ATTR_ENTITIES).getAsJsonArray());
+				jsonEnemyEntities = data.get(Connection.JSON_ATTR_ENTITIES).getAsJsonArray();
 				break;
 			case Connection.JSON_TYPE_PLAY:
+				for (JsonElement jsonElement : jsonEnemyEntities) {
+					JsonObject jsonEntity = jsonElement.getAsJsonObject();
+					GridPosition position = new GridPosition(jsonEntity.get("x").getAsInt(), jsonEntity.get("y").getAsInt());
+					int level = jsonEntity.get("lvl").getAsInt();
+					Entity.Type entityType;
+					switch (jsonEntity.get("type").getAsString()) {
+						case "fire":
+							entityType = Entity.Type.FIRE;
+							break;
+						case "water":
+							entityType = Entity.Type.WATER;
+							break;
+						case "earth":
+							entityType = Entity.Type.EARTH;
+							break;
+						default:
+							throw new AssertionError("invalid Type");
+					}
+					Entity entity = new Entity(entityType, position, board, game.getTextureAtlas());
+					entity.setLevel(level);
+					entity.setEnemy(true);
+				}
 				game.getState().setPhase(GameState.GamePhase.PLAY);
 				play = true;
 				break;

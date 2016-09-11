@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import net.frozenbit.strategicelements.entities.DummyEntity;
-import net.frozenbit.strategicelements.screens.BoardScreen;
 import net.frozenbit.strategicelements.screens.MainMenu;
 import net.frozenbit.strategicelements.screens.ScreenManager;
 
@@ -14,6 +13,7 @@ public class StrategicElementsGame extends ApplicationAdapter {
 	private TextureAtlas textureAtlas;
 
 	private ScreenManager screenManager;
+	private FontManager fontManager;
 
 	@Override
 	public void create() {
@@ -25,7 +25,7 @@ public class StrategicElementsGame extends ApplicationAdapter {
 		entity.setPosition(new GridPosition(7, 2));
 		entity.setDirection(GridPosition.Direction.SOUTH_WEST);
 		entity.setPartialDistance(0);
-		screenManager.push(new BoardScreen(this, board));
+		//screenManager.push(new BoardScreen(this, board));
 	}
 
 	private void initState() {
@@ -37,6 +37,7 @@ public class StrategicElementsGame extends ApplicationAdapter {
 		}
 		textureAtlas = new TextureAtlas(Gdx.files.internal("textures.atlas"));
 		screenManager = new ScreenManager();
+		fontManager = new FontManager();
 	}
 
 	public TextureAtlas getTextureAtlas() {
@@ -49,6 +50,10 @@ public class StrategicElementsGame extends ApplicationAdapter {
 
 	public ScreenManager getScreenManager() {
 		return screenManager;
+	}
+
+	public FontManager getFontManager() {
+		return fontManager;
 	}
 
 	@Override
@@ -66,6 +71,9 @@ public class StrategicElementsGame extends ApplicationAdapter {
 		}
 		if (connection != null) {
 			connection.close();
+		}
+		if (fontManager != null) {
+			fontManager.dispose();
 		}
 	}
 

@@ -3,7 +3,6 @@ package net.frozenbit.strategicelements.widgets;
 
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public abstract class BaseWidget implements InputProcessor {
 	protected int x, y;
@@ -17,9 +16,6 @@ public abstract class BaseWidget implements InputProcessor {
 	}
 
 	public abstract void renderSprites(SpriteBatch batch, float delta);
-
-	public void renderShapes(ShapeRenderer batch, float delta) {
-	}
 
 	@Override
 	public boolean keyDown(int keycode) {

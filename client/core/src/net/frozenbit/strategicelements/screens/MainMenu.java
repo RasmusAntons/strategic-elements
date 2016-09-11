@@ -3,6 +3,7 @@ package net.frozenbit.strategicelements.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
@@ -18,38 +19,39 @@ import net.frozenbit.strategicelements.widgets.TextWidget;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class MainMenu extends ManageableScreen {
 	private List<BaseWidget> widgets;
 	private TextureRegion background;
 	private SpriteBatch batch;
 
-	public MainMenu(StrategicElementsGame game) {
+	public MainMenu(final StrategicElementsGame game) {
 		super(game);
 		widgets = new ArrayList<>();
 		background = game.getTextureAtlas().findRegion("main");
 		batch = new SpriteBatch();
-		//batch.getProjectionMatrix().setToOrtho2D(0, 0, 1200, 700);
-		BitmapFont font = game.getFontManager().getFont("vera/Vera.ttf", 18);
-		TextWidget textWidget = new TextWidget("lelellelelelelelel", font);
-		textWidget.setX(100);
-		textWidget.setY(600);
-		widgets.add(textWidget);
-		NinePatch btnNormal = game.getTextureAtlas().createPatch("btn_default_normal");
-		NinePatch btnPressed = game.getTextureAtlas().createPatch("btn_default_pressed");
-		ButtonWidget buttonWidget = new ButtonWidget("Click plz", font, btnNormal, btnPressed);
-		buttonWidget.setX(400);
-		buttonWidget.setY(600);
-		buttonWidget.setOnClickListener(new ButtonWidget.OnClickListener() {
-			@Override
-			public void onClick(ButtonWidget widget) {
-				Random random = new Random();
-				Gdx.gl.glClearColor(random.nextFloat(), random.nextFloat(), random.nextFloat(), 1);
-			}
-		});
-		widgets.add(buttonWidget);
-		Gdx.gl.glClearColor(1, 1, 1, 1);
+
+		BitmapFont font = game.getFontManager().getFont("vera/Vera.ttf", 25);
+		if (!game.getConnection().isOnline()) {
+			TextWidget errorTextWidget = new TextWidget("Connection to the server failed :(", font);
+			errorTextWidget.setColor(Color.FIREBRICK);
+			errorTextWidget.setX(400);
+			errorTextWidget.setY(90);
+			widgets.add(errorTextWidget);
+		} else {
+			NinePatch btnNormal = game.getTextureAtlas().createPatch("btn_default_normal");
+			NinePatch btnPressed = game.getTextureAtlas().createPatch("btn_default_pressed");
+			ButtonWidget buttonWidget = new ButtonWidget("Play now", font, btnNormal, btnPressed);
+			buttonWidget.setX(500);
+			buttonWidget.setY(100);
+			buttonWidget.setOnClickListener(new ButtonWidget.OnClickListener() {
+				@Override
+				public void onClick(ButtonWidget widget) {
+					game.getScreenManager().push(new WaitingScreen(game));
+				}
+			});
+			widgets.add(buttonWidget);
+		}
 	}
 
 	@Override
@@ -61,9 +63,12 @@ public class MainMenu extends ManageableScreen {
 
 	@Override
 	public void render(float delta) {
+		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		batch.draw(background, 0, 0);
+		batch.draw(background,
+				(Gdx.graphics.getWidth() - background.getRegionWidth()) / 2,
+				(Gdx.graphics.getHeight() - background.getRegionHeight()) / 2);
 		for (BaseWidget widget : widgets) {
 			widget.renderSprites(batch, delta);
 		}

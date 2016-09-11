@@ -72,6 +72,24 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 		earthBudgetWidget = textBelow(smallFont, earthButton);
 		widgets.add(earthBudgetWidget);
 
+		ButtonWidget doneButton = new ButtonWidget("Done", font, buttonNormal, buttonPressed);
+		doneButton.setX(earthButton.getX() + earthButton.getWidth() + 100);
+		doneButton.setY(80);
+		doneButton.setOnClickListener(new ButtonWidget.OnClickListener() {
+			private boolean alreadyDone;
+
+			@Override
+			public void onClick(ButtonWidget widget) {
+				if (alreadyDone) {
+					return;
+				}
+				alreadyDone = true;
+				sendBuy();
+			}
+		});
+		widgets.add(doneButton);
+
+
 		firePointsLeft = 10;
 		waterPointsLeft = 10;
 		earthPointsLeft = 10;

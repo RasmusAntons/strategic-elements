@@ -13,7 +13,10 @@ import com.badlogic.gdx.utils.Array;
 import net.frozenbit.strategicelements.entities.Entity;
 import net.frozenbit.strategicelements.tiles.Tile;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 public class BoardRenderer {
 	private static final float TILE_EDGE_LEN = 20.0f;
@@ -28,6 +31,7 @@ public class BoardRenderer {
 	private final Array<TextureAtlas.AtlasRegion> groundTextures;
 	private final TextureAtlas.AtlasRegion overlayTexture;
 	private final Array<TextureAtlas.AtlasRegion> levelOverlays;
+	private Set<GridPosition> highlightedPositions;
 	private Board board;
 
 	public BoardRenderer(Board board, TextureAtlas atlas) {
@@ -38,6 +42,7 @@ public class BoardRenderer {
 		groundTextures = atlas.findRegions("ground");
 		overlayTexture = atlas.findRegion("overlay");
 		levelOverlays = atlas.findRegions("level_overlay");
+		highlightedPositions = new HashSet<>();
 	}
 
 	public void render(float delta) {
@@ -72,6 +77,13 @@ public class BoardRenderer {
 		spriteBatch.draw(texture, x - texture.getRegionWidth() / 2, y - texture.getRegionHeight() / 2);
 	}
 
+	public Set<GridPosition> getHighlightedPositions() {
+		return highlightedPositions;
+	}
+
+	public void setHighlightedPositions(Set<GridPosition> positions) {
+		this.highlightedPositions = highlightedPositions;
+	}
 
 	/**
 	 * Convert input coordinates (mouse, touchscreen). Formula taken from this

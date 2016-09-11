@@ -5,12 +5,14 @@ public class GameState {
 	private String name;
 	private boolean loggedIn;
 	private String enemyName;
+	private boolean turn;
 
 	public GameState() {
 		phase = GamePhase.INIT;
 		name = null;
 		loggedIn = false;
 		enemyName = null;
+		turn = false;
 	}
 
 	public synchronized GamePhase getPhase() {
@@ -43,6 +45,14 @@ public class GameState {
 
 	public synchronized void setEnemyName(String enemyName) {
 		this.enemyName = enemyName;
+	}
+
+	public synchronized boolean isTurn() {
+		return turn;
+	}
+
+	public synchronized void setTurn(boolean turn) {
+		this.turn = turn;
 	}
 
 	public enum GamePhase {

@@ -1,6 +1,7 @@
 package net.frozenbit.strategicelements;
 
 import net.frozenbit.strategicelements.entities.Entity;
+import net.frozenbit.strategicelements.entities.PathFinder;
 import net.frozenbit.strategicelements.tiles.GroundTile;
 import net.frozenbit.strategicelements.tiles.Tile;
 import net.frozenbit.strategicelements.tiles.VoidTile;
@@ -16,10 +17,12 @@ public class Board {
 	private static final VoidTile VOID_TILE = new VoidTile();
 	private Map<GridPosition, Tile> tiles;
 	private List<Entity> entities;
+	private PathFinder pathFinder;
 
 	public Board() {
 		this.tiles = new HashMap<>();
 		entities = new ArrayList<>();
+		pathFinder = new PathFinder(this);
 		for (int i = -15; i < 15; ++i) {
 			for (int j = -8; j < 8; ++j) {
 				tiles.put(new GridPosition(i, j - ((i + (i > 0 ? 1 : 0)) / 2)), new GroundTile());
@@ -61,4 +64,7 @@ public class Board {
 		return entities;
 	}
 
+	public PathFinder getPathFinder() {
+		return pathFinder;
+	}
 }

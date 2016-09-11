@@ -9,6 +9,7 @@ import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import net.frozenbit.strategicelements.*;
 import net.frozenbit.strategicelements.entities.Entity;
 
+import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.List;
 import java.util.Queue;
@@ -60,12 +61,12 @@ public class PlayScreen extends BoardScreen implements NetworkListener {
 						boardRenderer.setHighlightedPositions(board.getPathFinder().possibleDestinations(selectedEntity));
 					}
 				} else {
-					Queue<GridPosition.Direction> path = board.getPathFinder().pathTo(selectedEntity, touchedTilePosition);
-					if (path != null) {
+					if (board.getPathFinder().possibleDestinations(selectedEntity).contains(touchedTilePosition)) {
 						GridPosition origin = selectedEntity.getPosition();
-						moveEntity(selectedEntity, touchedTilePosition, path);
+						moveEntity(selectedEntity, touchedTilePosition);
 						game.getState().setTurn(false);
 						sendTurn(origin, touchedTilePosition);
+						selectedEntity = null;
 					} else {
 						selectedEntity = null;
 						boardRenderer.getHighlightedPositions().clear();
@@ -80,7 +81,7 @@ public class PlayScreen extends BoardScreen implements NetworkListener {
 		return false;
 	}
 
-	private void moveEntity(Entity entity, GridPosition destination, Queue<GridPosition.Direction> path) {
+	private void moveEntity(Entity entity, GridPosition destination) {
 		Entity enemy = board.getEntityByPosition(destination);
 		if (enemy != null) {
 			if (entity.winsAgainst(enemy)) {
@@ -90,7 +91,7 @@ public class PlayScreen extends BoardScreen implements NetworkListener {
 				return;
 			}
 		}
-		entity.move(destination, path);
+		entity.setPosition(destination);
 	}
 
 	private void sendTurn(GridPosition departure, GridPosition destination) {
@@ -112,14 +113,11 @@ public class PlayScreen extends BoardScreen implements NetworkListener {
 			case Connection.JSON_TYPE_TURN:
 				JsonObject jsonTurn = data.get("turn").getAsJsonObject();
 				GridPosition origin = new GridPosition(jsonTurn.get("depX").getAsInt(), jsonTurn.get("depY").getAsInt());
-				GridPosition destination = new GridPosition(jsonTurn.get("depX").getAsInt(), jsonTurn.get("depY").getAsInt());
+				GridPosition destination = new GridPosition(jsonTurn.get("destX").getAsInt(), jsonTurn.get("destY").getAsInt());
 				Entity movedEntity = board.getEntityByPosition(origin);
 				if (movedEntity == null)
 					throw new RuntimeException("movement hacks detected");
-				Queue<GridPosition.Direction> path = board.getPathFinder().pathTo(movedEntity, destination);
-				if (path == null)
-					throw new RuntimeException("movement hacks detected");
-				moveEntity(movedEntity, destination, path);
+				moveEntity(movedEntity, destination);
 				game.getState().setTurn(true);
 				break;
 			case Connection.JSON_TYPE_CLOSE:

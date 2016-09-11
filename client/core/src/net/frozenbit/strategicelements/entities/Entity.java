@@ -66,7 +66,8 @@ public class Entity implements Disposable {
 		this.position = position;
 		renderPosition = position;
 		moving = false;
-		path.clear();
+		if (path != null)
+			path.clear();
 	}
 
 	public GridPosition getRenderPosition() {

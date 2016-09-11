@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import net.frozenbit.strategicelements.*;
 import net.frozenbit.strategicelements.entities.Entity;
 
-import java.util.List;
+import java.util.Queue;
 
 /**
  * Screen rendered during the game after the buy phase
@@ -56,7 +56,7 @@ public class PlayScreen extends BoardScreen implements NetworkListener {
 						boardRenderer.getHighlightedPositions().clear();
 					}
 				} else {
-					List<GridPosition.Direction> path = board.getPathFinder().pathTo(selectedEntity, touchedTilePosition);
+					Queue<GridPosition.Direction> path = board.getPathFinder().pathTo(selectedEntity, touchedTilePosition);
 					if (path != null) {
 						
 					} else {

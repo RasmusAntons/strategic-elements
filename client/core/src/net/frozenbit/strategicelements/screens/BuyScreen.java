@@ -10,7 +10,6 @@ import net.frozenbit.strategicelements.Board;
 import net.frozenbit.strategicelements.GridPosition;
 import net.frozenbit.strategicelements.StrategicElementsGame;
 import net.frozenbit.strategicelements.entities.Entity;
-import net.frozenbit.strategicelements.entities.PathFinder;
 import net.frozenbit.strategicelements.tiles.Tile;
 import net.frozenbit.strategicelements.widgets.BaseWidget;
 import net.frozenbit.strategicelements.widgets.ButtonWidget;
@@ -19,12 +18,17 @@ import net.frozenbit.strategicelements.widgets.TextWidget;
 import static java.lang.String.format;
 
 /**
- * Renders the hexagonal game board and in-game GUI
+ * Renders the hexagonal game board and in-game GUI.
  */
+// the code of this class is quite messy and should be cleaned up in the future
 public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListener {
+	private static final String POINTS_LEFT_STR = "Place %d more";
 	private final ButtonWidget fireButton;
 	private final ButtonWidget waterButton;
 	private final ButtonWidget earthButton;
+	private final TextWidget fireBudgetWidget;
+	private final TextWidget waterBudgetWidget;
+	private final TextWidget earthBudgetWidget;
 	private int firePointsLeft = 10, waterPointsLeft = 10, earthPointsLeft = 10;
 	private Entity.Type currentEntityType;
 
@@ -43,7 +47,7 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 		fireButton.setY(80);
 		fireButton.setOnClickListener(this);
 		widgets.add(fireButton);
-		TextWidget fireBudgetWidget = textBelow(smallFont, fireButton);
+		fireBudgetWidget = textBelow(smallFont, fireButton);
 		widgets.add(fireBudgetWidget);
 
 		waterButton = new ButtonWidget("Place Water Units", font, buttonNormal, buttonPressed);
@@ -52,7 +56,7 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 		waterButton.setY(80);
 		waterButton.setOnClickListener(this);
 		widgets.add(waterButton);
-		TextWidget waterBudgetWidget = textBelow(smallFont, waterButton);
+		waterBudgetWidget = textBelow(smallFont, waterButton);
 		widgets.add(waterBudgetWidget);
 
 		earthButton = new ButtonWidget("Place Earth Units", font, buttonNormal, buttonPressed);
@@ -61,10 +65,19 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 		earthButton.setY(80);
 		earthButton.setOnClickListener(this);
 		widgets.add(earthButton);
-		TextWidget earthBudgetWidget = textBelow(smallFont, earthButton);
+		earthBudgetWidget = textBelow(smallFont, earthButton);
 		widgets.add(earthBudgetWidget);
 
 		firePointsLeft = 10;
+		waterPointsLeft = 10;
+		earthPointsLeft = 10;
+		updateBudgets();
+	}
+
+	private void updateBudgets() {
+		fireBudgetWidget.setText(format(POINTS_LEFT_STR, firePointsLeft));
+		waterBudgetWidget.setText(format(POINTS_LEFT_STR, waterPointsLeft));
+		earthBudgetWidget.setText(format(POINTS_LEFT_STR, earthPointsLeft));
 	}
 
 	private TextWidget textBelow(BitmapFont font, BaseWidget widget) {
@@ -103,12 +116,35 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 			return false;
 		}
 
+		if (currentEntityType == Entity.Type.FIRE) {
+			if (firePointsLeft > 0) {
+				firePointsLeft--;
+			} else {
+				return false;
+			}
+		}
+
+		if (currentEntityType == Entity.Type.WATER) {
+			if (waterPointsLeft > 0) {
+				waterPointsLeft--;
+			} else {
+				return false;
+			}
+		}
+		if (currentEntityType == Entity.Type.EARTH) {
+			if (earthPointsLeft > 0) {
+				earthPointsLeft--;
+			} else {
+				return false;
+			}
+		}
+		updateBudgets();
+
 		if (entity == null) {
 			entity = new Entity(currentEntityType, gridPosition, board, game.getTextureAtlas());
 		} else if (entity.getLevel() < Entity.MAX_LEVEL) {
 			entity.setLevel(entity.getLevel() + 1);
 		}
-		boardRenderer.setHighlightedPositions(new PathFinder(board).possibleDestinations(entity));
 		return true;
 	}
 

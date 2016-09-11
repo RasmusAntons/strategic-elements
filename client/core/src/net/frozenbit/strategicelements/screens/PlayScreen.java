@@ -3,30 +3,21 @@ package net.frozenbit.strategicelements.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.google.gson.JsonObject;
 import net.frozenbit.strategicelements.*;
 import net.frozenbit.strategicelements.entities.Entity;
-import net.frozenbit.strategicelements.entities.PathFinder;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Screen rendered during the game after the buy phase
  */
-public class PlayScreen extends ManageableScreen implements NetworkListener {
+public class PlayScreen extends BoardScreen implements NetworkListener {
 	private Entity selectedEntity;
-	private final SpriteBatch batch;
-	private Board board;
-	private BoardRenderer boardRenderer;
 
 	public PlayScreen(Board board, BoardRenderer boardRenderer, StrategicElementsGame game) {
-		super(game);
+		super(game, board);
 		game.getConnection().registerListener(this);
-		batch = new SpriteBatch();
-		this.board = board;
-		this.boardRenderer = boardRenderer;
 	}
 
 	@Override
@@ -39,6 +30,8 @@ public class PlayScreen extends ManageableScreen implements NetworkListener {
 
 			}
 		}
+
+		super.render(delta);
 
 		boardRenderer.render(delta);
 

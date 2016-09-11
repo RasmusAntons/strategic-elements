@@ -15,7 +15,6 @@ import net.frozenbit.strategicelements.tiles.Tile;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 public class BoardRenderer {
@@ -48,14 +47,20 @@ public class BoardRenderer {
 	public void render(float delta) {
 		int x = Gdx.input.getX();
 		int y = Gdx.input.getY();
-		GridPosition gridPosition = mouseToGrid(x, y);
+		GridPosition hoverPosition = mouseToGrid(x, y);
 		spriteBatch.setProjectionMatrix(camera.combined);
 		spriteBatch.begin();
 		for (Map.Entry<GridPosition, Tile> tileEntry : board.getTiles()) {
-			Vector2 center = center(tileEntry.getKey());
+			GridPosition position = tileEntry.getKey();
+			Vector2 center = center(position);
 			TextureRegion region = groundTextures.first();
 			drawTexture(region, center.x, center.y);
-			if (gridPosition.equals(tileEntry.getKey())) {
+			if (highlightedPositions.contains(position)) {
+				spriteBatch.setColor(0, 1, 0, 0.1f);
+				drawTexture(overlayTexture, center.x, center.y);
+				spriteBatch.setColor(Color.WHITE);
+			}
+			if (hoverPosition.equals(position)) {
 				spriteBatch.setColor(0, 0, 1, 0.1f);
 				drawTexture(overlayTexture, center.x, center.y);
 				spriteBatch.setColor(Color.WHITE);
@@ -82,7 +87,7 @@ public class BoardRenderer {
 	}
 
 	public void setHighlightedPositions(Set<GridPosition> positions) {
-		this.highlightedPositions = highlightedPositions;
+		this.highlightedPositions = positions;
 	}
 
 	/**

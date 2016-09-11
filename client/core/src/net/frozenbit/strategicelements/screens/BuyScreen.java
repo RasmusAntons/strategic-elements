@@ -6,51 +6,36 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import net.frozenbit.strategicelements.Board;
-import net.frozenbit.strategicelements.BoardRenderer;
 import net.frozenbit.strategicelements.GridPosition;
 import net.frozenbit.strategicelements.StrategicElementsGame;
 import net.frozenbit.strategicelements.entities.Entity;
+import net.frozenbit.strategicelements.entities.PathFinder;
 import net.frozenbit.strategicelements.tiles.Tile;
 import net.frozenbit.strategicelements.widgets.BaseWidget;
 import net.frozenbit.strategicelements.widgets.ButtonWidget;
 import net.frozenbit.strategicelements.widgets.TextWidget;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static java.lang.String.format;
 
 /**
  * Renders the hexagonal game board and in-game GUI
  */
-public class BuyScreen extends ManageableScreen implements ButtonWidget.OnClickListener {
-	private final SpriteBatch batch;
+public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListener {
 	private final ButtonWidget fireButton;
 	private final ButtonWidget waterButton;
 	private final ButtonWidget earthButton;
 	private int firePointsLeft = 10, waterPointsLeft = 10, earthPointsLeft = 10;
-	private BoardRenderer boardRenderer;
-	private List<BaseWidget> widgets;
-	private Board board;
 	private Entity.Type currentEntityType;
 
 	public BuyScreen(StrategicElementsGame game, Board board) {
-		super(game);
-		this.board = board;
-		boardRenderer = new BoardRenderer(board, game.getTextureAtlas());
-		batch = new SpriteBatch();
-		widgets = new ArrayList<>();
-		BitmapFont font = game.getFontManager().getFont("vera/Vera.ttf", 16);
-		BitmapFont smallFont = game.getFontManager().getFont("vera/Vera.ttf", 11);
-		TextWidget textWidget = new TextWidget("You are playing against " + game.getState().getEnemyName(), font);
-		textWidget.setX(10);
-		textWidget.setY(Gdx.graphics.getHeight() - 10);
-		widgets.add(textWidget);
+		super(game, board);
 
 		NinePatch buttonNormal = game.getTextureAtlas().createPatch("btn_default_normal");
 		NinePatch buttonPressed = game.getTextureAtlas().createPatch("btn_default_pressed");
+
+		BitmapFont font = game.getFontManager().getFont("vera/Vera.ttf", 16);
+		BitmapFont smallFont = game.getFontManager().getFont("vera/Vera.ttf", 11);
 
 		fireButton = new ButtonWidget("Place Fire Units", font, buttonNormal, buttonPressed);
 		fireButton.setTint(Color.ORANGE);
@@ -119,10 +104,11 @@ public class BuyScreen extends ManageableScreen implements ButtonWidget.OnClickL
 		}
 
 		if (entity == null) {
-			Entity entity1 = new Entity(currentEntityType, gridPosition, board, game.getTextureAtlas());
+			entity = new Entity(currentEntityType, gridPosition, board, game.getTextureAtlas());
 		} else if (entity.getLevel() < Entity.MAX_LEVEL) {
 			entity.setLevel(entity.getLevel() + 1);
 		}
+		boardRenderer.setHighlightedPositions(new PathFinder(board).possibleDestinations(entity));
 		return true;
 	}
 
@@ -142,12 +128,9 @@ public class BuyScreen extends ManageableScreen implements ButtonWidget.OnClickL
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		boardRenderer.render(delta);
+		super.render(delta);
 
 		batch.begin();
-		for (BaseWidget widget : widgets) {
-			widget.renderSprites(batch, delta);
-		}
 		batch.end();
 	}
 

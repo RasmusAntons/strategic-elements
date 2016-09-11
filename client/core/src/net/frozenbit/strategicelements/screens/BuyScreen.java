@@ -255,6 +255,7 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 					entity.setLevel(level);
 					entity.setEnemy(true);
 				}
+				game.getState().setTurn(data.get(Connection.JSON_ATTR_SUCCESS).getAsBoolean());
 				game.getState().setPhase(GameState.GamePhase.PLAY);
 				play = true;
 				break;

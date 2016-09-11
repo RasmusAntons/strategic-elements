@@ -80,6 +80,20 @@ public class Entity implements Disposable {
 		direction = path.poll();
 	}
 
+	private boolean isStrongAgainst(Entity other) {
+		return (type == Type.WATER && other.getType() == Type.FIRE)
+			   || (type == Type.FIRE && other.getType() == Type.EARTH)
+			   || (type == Type.EARTH && other.getType() == Type.WATER);
+	}
+
+	public boolean winsAgainst(Entity other) {
+		int myLevel = level + (isStrongAgainst(other) ? 1 : 0);
+		int otherLevel = other.getLevel() + (other.isStrongAgainst(this) ? 1 : 0);
+		if (myLevel == otherLevel)
+			return !other.isStrongAgainst(this);
+		return myLevel > otherLevel;
+	}
+
 	public void onTick(float delta) {
 		if (isMoving()) {
 			float distance = speed * delta;

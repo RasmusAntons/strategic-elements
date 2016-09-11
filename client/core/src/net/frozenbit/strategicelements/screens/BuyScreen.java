@@ -6,9 +6,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
-import net.frozenbit.strategicelements.Board;
-import net.frozenbit.strategicelements.GridPosition;
-import net.frozenbit.strategicelements.StrategicElementsGame;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.frozenbit.strategicelements.*;
 import net.frozenbit.strategicelements.entities.Entity;
 import net.frozenbit.strategicelements.tiles.Tile;
 import net.frozenbit.strategicelements.widgets.BaseWidget;
@@ -21,7 +22,7 @@ import static java.lang.String.format;
  * Renders the hexagonal game board and in-game GUI.
  */
 // the code of this class is quite messy and should be cleaned up in the future
-public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListener {
+public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListener, NetworkListener {
 	private static final String POINTS_LEFT_STR = "Place %d more";
 	private final ButtonWidget fireButton;
 	private final ButtonWidget waterButton;
@@ -29,11 +30,14 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 	private final TextWidget fireBudgetWidget;
 	private final TextWidget waterBudgetWidget;
 	private final TextWidget earthBudgetWidget;
+	private boolean play;
 	private int firePointsLeft = 10, waterPointsLeft = 10, earthPointsLeft = 10;
 	private Entity.Type currentEntityType;
 
 	public BuyScreen(StrategicElementsGame game, Board board) {
 		super(game, board);
+		game.getConnection().registerListener(this);
+		play = false;
 
 		NinePatch buttonNormal = game.getTextureAtlas().createPatch("btn_default_normal");
 		NinePatch buttonPressed = game.getTextureAtlas().createPatch("btn_default_pressed");
@@ -161,6 +165,10 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 
 	@Override
 	public void render(float delta) {
+		if (play) {
+			game.getScreenManager().push(new PlayScreen(board, boardRenderer, game));
+		}
+
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -170,5 +178,47 @@ public class BuyScreen extends BoardScreen implements ButtonWidget.OnClickListen
 		batch.end();
 	}
 
+	private void sendBuy() {
+		JsonObject request = new JsonObject();
 
+	}
+
+	private void receiveBuy(JsonArray jsonEntities) {
+		for (JsonElement jsonElement : jsonEntities) {
+			JsonObject jsonEntity = jsonElement.getAsJsonObject();
+			GridPosition position = new GridPosition(jsonEntity.get("x").getAsInt(), jsonEntity.get("y").getAsInt());
+			int level = jsonEntity.get("lvl").getAsInt();
+			Entity.Type type;
+			switch (jsonEntity.get("type").getAsString()) {
+				case "fire":
+					type = Entity.Type.FIRE;
+					break;
+				case "water":
+					type = Entity.Type.WATER;
+					break;
+				case "earth":
+					type = Entity.Type.EARTH;
+					break;
+				default:
+					throw new AssertionError("invalid Type");
+			}
+			Entity entity = new Entity(type, position, board, game.getTextureAtlas());
+			entity.setLevel(level);
+			entity.setEnemy(true);
+		}
+	}
+
+	@Override
+	public void onDataReceived(JsonObject data) {
+		String type = data.get(Connection.JSON_ATTR_TYPE).getAsString();
+		switch(type) {
+			case Connection.JSON_TYPE_BUY:
+				receiveBuy(data.get(Connection.JSON_ATTR_ENTITIES).getAsJsonArray());
+				break;
+			case Connection.JSON_TYPE_PLAY:
+				game.getState().setPhase(GameState.GamePhase.PLAY);
+				play = true;
+				break;
+		}
+	}
 }

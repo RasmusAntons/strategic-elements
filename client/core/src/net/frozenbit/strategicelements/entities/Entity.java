@@ -6,16 +6,24 @@ import com.badlogic.gdx.utils.Disposable;
 import net.frozenbit.strategicelements.Board;
 import net.frozenbit.strategicelements.GridPosition;
 
+import java.util.List;
+import java.util.Queue;
+
 public class Entity implements Disposable {
 	public static final int MAX_LEVEL = 3;
+	private static final int BASE_RANGE = 3;
 	private static final float BASE_SPEED = 2;
 	private final TextureAtlas.AtlasRegion texture;
 	private final Type type;
 	protected TextureAtlas atlas;
 	private Board board;
 	private GridPosition position;
+	private GridPosition renderPosition;
 	private GridPosition.Direction direction;
+	private Queue<GridPosition.Direction> path;
+	private boolean enemy;
 	private boolean moving;
+	private int range;
 	private float speed;
 	private float partialDistance;
 	private int level = 1;
@@ -24,9 +32,12 @@ public class Entity implements Disposable {
 		this.type = type;
 		this.board = board;
 		this.position = position;
+		renderPosition = position;
 		texture = atlas.findRegion("entity_" + type.name().toLowerCase());
+		enemy = false;
 		direction = GridPosition.Direction.NORTH;
 		moving = false;
+		range = BASE_RANGE;
 		speed = BASE_SPEED;
 		partialDistance = 0;
 		board.addEntity(this);
@@ -53,23 +64,37 @@ public class Entity implements Disposable {
 
 	public void setPosition(GridPosition position) {
 		this.position = position;
+		renderPosition = position;
+		moving = false;
+		path.clear();
 	}
 
-	public void move(GridPosition.Direction direction) {
+	public GridPosition getRenderPosition() {
+		return renderPosition;
+	}
+
+	public void move(GridPosition destination, Queue<GridPosition.Direction> path) {
+		position = destination;
 		moving = true;
-		this.direction = direction;
+		this.path = path;
+		direction = path.poll();
 	}
 
 	public void onTick(float delta) {
 		if (isMoving()) {
 			float distance = speed * delta;
 			if(getPartialDistance() + distance >= 1) {
-				//setPartialDistance(getPartialDistance() + distance - 1); // more steps
-				setPartialDistance(0);
-				moving = false;
-				setPosition(getPosition().getNeighbor(getDirection()));
+				if (!path.isEmpty()) {
+					partialDistance = partialDistance + distance - 1;
+				} else {
+					partialDistance = 0;
+					moving = false;
+
+				}
+				renderPosition = renderPosition.getNeighbor(direction);
 			} else {
-				setPartialDistance(getPartialDistance() + distance);
+				partialDistance = partialDistance + distance;
+				renderPosition = position;
 			}
 		}
 	}
@@ -108,6 +133,18 @@ public class Entity implements Disposable {
 
 	public void setSpeed(float speed) {
 		this.speed = speed;
+	}
+
+	public int getRange() {
+		return range;
+	}
+
+	public boolean isEnemy() {
+		return enemy;
+	}
+
+	public void setEnemy(boolean enemy) {
+		this.enemy = enemy;
 	}
 
 	public enum Type {

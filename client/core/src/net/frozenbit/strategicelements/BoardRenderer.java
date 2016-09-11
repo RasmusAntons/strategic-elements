@@ -71,7 +71,7 @@ public class BoardRenderer {
 			entity.onTick(delta);
 			TextureRegion texture = entity.getTexture();
 			Vector2 offset = offset(entity.getDirection(), entity.getPartialDistance());
-			Vector2 renderPosition = center(entity.getPosition()).add(offset);
+			Vector2 renderPosition = center(entity.getRenderPosition()).add(offset);
 			drawTexture(texture, renderPosition.x, renderPosition.y);
 			drawTexture(levelOverlays.get(entity.getLevel() - 1), renderPosition.x, renderPosition.y);
 		}

@@ -34,9 +34,6 @@ public class PlayScreen extends BoardScreen implements NetworkListener {
 		super.render(delta);
 
 		boardRenderer.render(delta);
-
-		batch.begin();
-		batch.end();
 	}
 
 	@Override
@@ -49,7 +46,10 @@ public class PlayScreen extends BoardScreen implements NetworkListener {
 		switch(button) {
 			case Input.Buttons.LEFT:
 				if (selectedEntity == null) {
-					selectedEntity = board.getEntityByPosition(touchedTilePosition);
+					Entity clickedEntity = board.getEntityByPosition(touchedTilePosition);
+					if (!clickedEntity.isEnemy()) {
+						selectedEntity = clickedEntity;
+					}
 					if (selectedEntity != null) {
 						boardRenderer.setHighlightedPositions(board.getPathFinder().possibleDestinations(selectedEntity));
 					} else {
@@ -58,7 +58,7 @@ public class PlayScreen extends BoardScreen implements NetworkListener {
 				} else {
 					List<GridPosition.Direction> path = board.getPathFinder().pathTo(selectedEntity, touchedTilePosition);
 					if (path != null) {
-
+						
 					} else {
 						selectedEntity = null;
 						boardRenderer.getHighlightedPositions().clear();
